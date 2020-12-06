@@ -1,6 +1,6 @@
 {
   "name": "micromark-extension-mdx-jsx",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "micromark extension to support MDX or MDX.js JSX",
   "license": "MIT",
   "keywords": [
