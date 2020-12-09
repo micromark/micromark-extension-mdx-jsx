@@ -8,7 +8,7 @@
 [![Backers][backers-badge]][collective]
 [![Chat][chat-badge]][chat]
 
-**[micromark][]** extension to support [MDX][] (or MDX.js) JSX.
+**[micromark][]** extension to support [MDX][mdx-js] (or MDX.js) JSX.
 
 This package provides the low-level modules for integrating with the micromark
 tokenizer but has no handling of compiling to HTML: go to a syntax tree instead.
