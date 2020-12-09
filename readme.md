@@ -284,7 +284,7 @@ Many tokens are used:
 *   [`micromark/micromark-extension-mdxjs`][mdxjs]
     — micromark extension to support MDX.js
 *   [`micromark/micromark-extension-mdx-expression`][mdx-expression]
-    — micromark extension to support MDX (or MDX.js) JSX
+    — micromark extension to support MDX (or MDX.js) expressions
 *   [`micromark/micromark-extension-mdx-md`][mdx-md]
     — micromark extension to support misc MDX changes
 *   [`micromark/micromark-extension-mdxjs-esm`][mdxjs-esm]
