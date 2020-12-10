@@ -906,6 +906,15 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.equal(
+      micromark('<x\n  y\n>  \nb\n  </x>', {
+        extensions: [syntax()],
+        htmlExtensions: [html]
+      }),
+      '<p>b</p>\n',
+      'should support a dangling `>` in a tag (not a block quote)'
+    )
+
+    t.equal(
       micromark('<a>  \nb\n  </a>', {
         extensions: [syntax()],
         htmlExtensions: [html]
