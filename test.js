@@ -884,6 +884,15 @@ test('micromark-extension-mdx-jsx', function (t) {
       'should support an element w/ containers as content'
     )
 
+    t.equal(
+      micromark('<a b c:d e="" f={/* g */} {...h} />', {
+        extensions: [syntax()],
+        htmlExtensions: [html]
+      }),
+      '',
+      'should support attributes'
+    )
+
     t.end()
   })
 
