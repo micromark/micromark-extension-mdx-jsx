@@ -187,7 +187,7 @@ test('micromark-extension-mdx-jsx', function (t) {
       function () {
         micromark('a <b {1 + 1} /> c', {extensions: [syntax({acorn: acorn})]})
       },
-      /Could not parse expression with acorn: SyntaxError: Unexpected token/,
+      /Could not parse expression with acorn: Unexpected token/,
       'should crash on a non-spread attribute expression'
     )
 
@@ -195,7 +195,7 @@ test('micromark-extension-mdx-jsx', function (t) {
       function () {
         micromark('a <b c={?} /> d', {extensions: [syntax({acorn: acorn})]})
       },
-      /Could not parse expression with acorn: SyntaxError: Unexpected token/,
+      /Could not parse expression with acorn: Unexpected token/,
       'should crash on invalid JS in an attribute value expression'
     )
 
@@ -203,7 +203,7 @@ test('micromark-extension-mdx-jsx', function (t) {
       function () {
         micromark('a <b {?} /> c', {extensions: [syntax({acorn: acorn})]})
       },
-      /Could not parse expression with acorn: SyntaxError: Unexpected token/,
+      /Could not parse expression with acorn: Unexpected token/,
       'should crash on invalid JS in an attribute expression'
     )
 
