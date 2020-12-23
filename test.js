@@ -271,6 +271,14 @@ test('micromark-extension-mdx-jsx', function (t) {
       'should crash on non-conforming non-ascii identifier start characters'
     )
 
+    t.throws(
+      function () {
+        micromark('a <!--b-->', {extensions: [syntax()]})
+      },
+      /Unexpected character `!` \(U\+0021\) before name, expected a character that can start a name, such as a letter, `\$`, or `_` \(note: to create a comment in MDX, use `\{\/\* text \*\/\}`\)/,
+      'should crash nicely on what might be a comment'
+    )
+
     t.equal(
       micromark('a <a\u200Cb /> b.', {
         extensions: [syntax()],
