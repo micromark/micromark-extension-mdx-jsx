@@ -272,7 +272,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.equal(
-      micromark('a <a\u200cb /> b.', {
+      micromark('a <a\u200Cb /> b.', {
         extensions: [syntax()],
         htmlExtensions: [html]
       }),

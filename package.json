@@ -31,29 +31,27 @@
     "index.js"
   ],
   "dependencies": {
+    "estree-util-is-identifier-name": "^1.0.0",
     "micromark": "~2.11.0",
     "micromark-extension-mdx-expression": "^0.3.0",
     "vfile-message": "^2.0.0"
   },
   "devDependencies": {
-    "@unicode/unicode-13.0.0": "^1.0.0",
     "acorn": "^8.0.0",
     "acorn-jsx": "^5.0.0",
     "mdast-zone": "^4.0.0",
     "nyc": "^15.0.0",
     "prettier": "^2.0.0",
-    "regenerate": "^1.0.0",
     "remark-cli": "^9.0.0",
     "remark-preset-wooorm": "^8.0.0",
     "tape": "^5.0.0",
     "xo": "^0.36.0"
   },
   "scripts": {
-    "generate": "node script/generate-identifier-regex",
     "format": "remark . -qfo && prettier . -w --loglevel warn && xo --fix",
     "test-api": "node test",
     "test-coverage": "nyc --reporter lcov tape test.js",
-    "test": "npm run generate && npm run format && npm run test-coverage"
+    "test": "npm run format && npm run test-coverage"
   },
   "nyc": {
     "check-coverage": true,
@@ -73,10 +71,7 @@
     "prettier": true,
     "esnext": false,
     "rules": {
-      "max-params": "off",
-      "unicorn/escape-case": "off",
-      "unicorn/no-fn-reference-in-iterator": "off",
-      "unicorn/no-hex-escape": "off"
+      "max-params": "off"
     }
   },
   "remarkConfig": {
