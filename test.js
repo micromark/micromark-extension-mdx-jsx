@@ -288,6 +288,14 @@ test('micromark-extension-mdx-jsx', function (t) {
       'should crash on non-conforming non-ascii identifier continuation characters'
     )
 
+    t.throws(
+      function () {
+        micromark('a <b@c.d>', {extensions: [syntax()]})
+      },
+      /Unexpected character `@` \(U\+0040\) in name, expected a name character such as letters, digits, `\$`, or `_`; whitespace before attributes; or the end of the tag \(note: to create a link in MDX, use `\[text\]\(url\)`\)/,
+      'should crash nicely on what might be an email link'
+    )
+
     t.equal(
       micromark('a <a-->b</a-->.', {
         extensions: [syntax()],
@@ -314,6 +322,14 @@ test('micromark-extension-mdx-jsx', function (t) {
       'should support dots in names for method names'
     )
 
+    t.throws(
+      function () {
+        micromark('a <b.c@d.e>', {extensions: [syntax()]})
+      },
+      /Unexpected character `@` \(U\+0040\) in member name, expected a name character such as letters, digits, `\$`, or `_`; whitespace before attributes; or the end of the tag \(note: to create a link in MDX, use `\[text\]\(url\)`\)/,
+      'should crash nicely on what might be an email link in member names'
+    )
+
     t.equal(
       micromark('a <svg: rect>b</  svg :rect>.', {
         extensions: [syntax()],
@@ -327,8 +343,24 @@ test('micromark-extension-mdx-jsx', function (t) {
       function () {
         micromark('a <a:+> c.', {extensions: [syntax()]})
       },
-      /Unexpected character `\+` \(U\+002B\) before local name, expected a character that can start a name, such as a letter, `\$`, or `_`/,
+      /Unexpected character `\+` \(U\+002B\) before local name, expected a character that can start a name, such as a letter, `\$`, or `_` \(note: to create a link in MDX, use `\[text\]\(url\)`\)/,
       'should crash on a nonconforming character to start a local name'
+    )
+
+    t.throws(
+      function () {
+        micromark('a <http://example.com>', {extensions: [syntax()]})
+      },
+      /Unexpected character `\/` \(U\+002F\) before local name, expected a character that can start a name, such as a letter, `\$`, or `_` \(note: to create a link in MDX, use `\[text\]\(url\)`\)/,
+      'should crash nicely on what might be a protocol in local names'
+    )
+
+    t.throws(
+      function () {
+        micromark('a <http: >', {extensions: [syntax()]})
+      },
+      /Unexpected character `>` \(U\+003E\) before local name, expected a character that can start a name, such as a letter, `\$`, or `_`/,
+      'should crash nicely on what might be a protocol in local names'
     )
 
     t.throws(
