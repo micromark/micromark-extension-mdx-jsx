@@ -602,6 +602,14 @@ test('micromark-extension-mdx-jsx', function (t) {
 
     t.throws(
       function () {
+        micromark('a <a b=<c />> d.', {extensions: [syntax()]})
+      },
+      /Unexpected character `<` \(U\+003C\) before attribute value, expected a character that can start an attribute value, such as `"`, `'`, or `\{` \(note: to use an element or fragment as a prop value in MDX, use `\{\<element \/\>\}`\)/,
+      'should crash nicely on what might be a fragment, element as prop value'
+    )
+
+    t.throws(
+      function () {
         micromark('a <a b="> c.', {extensions: [syntax()]})
       },
       /Unexpected end of file in attribute value, expected a corresponding closing quote `"`/,
