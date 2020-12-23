@@ -275,7 +275,7 @@ test('micromark-extension-mdx-jsx', function (t) {
       function () {
         micromark('a <!--b-->', {extensions: [syntax()]})
       },
-      /Unexpected character `!` \(U\+0021\) before name, expected a character that can start a name, such as a letter, `\$`, or `_` \(note: to create a comment in MDX, use `\{\/\* text \*\/\}`\)/,
+      /Unexpected character `!` \(U\+0021\) before name, expected a character that can start a name, such as a letter, `\$`, or `_` \(note: to create a comment in MDX, use `{\/\* text \*\/}`\)/,
       'should crash nicely on what might be a comment'
     )
 
@@ -300,7 +300,7 @@ test('micromark-extension-mdx-jsx', function (t) {
       function () {
         micromark('a <b@c.d>', {extensions: [syntax()]})
       },
-      /Unexpected character `@` \(U\+0040\) in name, expected a name character such as letters, digits, `\$`, or `_`; whitespace before attributes; or the end of the tag \(note: to create a link in MDX, use `\[text\]\(url\)`\)/,
+      /Unexpected character `@` \(U\+0040\) in name, expected a name character such as letters, digits, `\$`, or `_`; whitespace before attributes; or the end of the tag \(note: to create a link in MDX, use `\[text]\(url\)`\)/,
       'should crash nicely on what might be an email link'
     )
 
@@ -334,7 +334,7 @@ test('micromark-extension-mdx-jsx', function (t) {
       function () {
         micromark('a <b.c@d.e>', {extensions: [syntax()]})
       },
-      /Unexpected character `@` \(U\+0040\) in member name, expected a name character such as letters, digits, `\$`, or `_`; whitespace before attributes; or the end of the tag \(note: to create a link in MDX, use `\[text\]\(url\)`\)/,
+      /Unexpected character `@` \(U\+0040\) in member name, expected a name character such as letters, digits, `\$`, or `_`; whitespace before attributes; or the end of the tag \(note: to create a link in MDX, use `\[text]\(url\)`\)/,
       'should crash nicely on what might be an email link in member names'
     )
 
@@ -351,7 +351,7 @@ test('micromark-extension-mdx-jsx', function (t) {
       function () {
         micromark('a <a:+> c.', {extensions: [syntax()]})
       },
-      /Unexpected character `\+` \(U\+002B\) before local name, expected a character that can start a name, such as a letter, `\$`, or `_` \(note: to create a link in MDX, use `\[text\]\(url\)`\)/,
+      /Unexpected character `\+` \(U\+002B\) before local name, expected a character that can start a name, such as a letter, `\$`, or `_` \(note: to create a link in MDX, use `\[text]\(url\)`\)/,
       'should crash on a nonconforming character to start a local name'
     )
 
@@ -359,7 +359,7 @@ test('micromark-extension-mdx-jsx', function (t) {
       function () {
         micromark('a <http://example.com>', {extensions: [syntax()]})
       },
-      /Unexpected character `\/` \(U\+002F\) before local name, expected a character that can start a name, such as a letter, `\$`, or `_` \(note: to create a link in MDX, use `\[text\]\(url\)`\)/,
+      /Unexpected character `\/` \(U\+002F\) before local name, expected a character that can start a name, such as a letter, `\$`, or `_` \(note: to create a link in MDX, use `\[text]\(url\)`\)/,
       'should crash nicely on what might be a protocol in local names'
     )
 
@@ -604,7 +604,7 @@ test('micromark-extension-mdx-jsx', function (t) {
       function () {
         micromark('a <a b=<c />> d.', {extensions: [syntax()]})
       },
-      /Unexpected character `<` \(U\+003C\) before attribute value, expected a character that can start an attribute value, such as `"`, `'`, or `\{` \(note: to use an element or fragment as a prop value in MDX, use `\{\<element \/\>\}`\)/,
+      /Unexpected character `<` \(U\+003C\) before attribute value, expected a character that can start an attribute value, such as `"`, `'`, or `{` \(note: to use an element or fragment as a prop value in MDX, use `{<element \/>}`\)/,
       'should crash nicely on what might be a fragment, element as prop value'
     )
 
