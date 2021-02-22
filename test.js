@@ -279,6 +279,38 @@ test('micromark-extension-mdx-jsx', function (t) {
       'should crash nicely on what might be a comment'
     )
 
+    t.throws(
+      function () {
+        micromark('a <// b\nc/>', {extensions: [syntax()]})
+      },
+      /Unexpected character `\/` \(U\+002F\) before name, expected a character that can start a name, such as a letter, `\$`, or `_` \(note: JS comments in JSX tags are not supported in MDX\)/,
+      'should crash nicely JS line comments inside tags (1)'
+    )
+
+    t.throws(
+      function () {
+        micromark('a <b// c\nd/>', {extensions: [syntax()]})
+      },
+      /Unexpected character `\/` \(U\+002F\) after self-closing slash, expected `>` to end the tag \(note: JS comments in JSX tags are not supported in MDX\)/,
+      'should crash nicely JS line comments inside tags (2)'
+    )
+
+    t.throws(
+      function () {
+        micromark('a </*b*/c>', {extensions: [syntax()]})
+      },
+      /Unexpected character `\*` \(U\+002A\) before name, expected a character that can start a name, such as a letter, `\$`, or `_` \(note: JS comments in JSX tags are not supported in MDX\)/,
+      'should crash nicely JS multiline comments inside tags (1)'
+    )
+
+    t.throws(
+      function () {
+        micromark('a <b/*c*/>', {extensions: [syntax()]})
+      },
+      /Unexpected character `\*` \(U\+002A\) after self-closing slash, expected `>` to end the tag \(note: JS comments in JSX tags are not supported in MDX\)/,
+      'should crash nicely JS multiline comments inside tags (2)'
+    )
+
     t.equal(
       micromark('a <a\u200Cb /> b.', {
         extensions: [syntax()],
