@@ -228,8 +228,8 @@ test('micromark-extension-mdx-jsx', function (t) {
         extensions: [syntax()],
         htmlExtensions: [html]
       }),
-      '<p>a b</p>',
-      'should support whitespace in the opening tag (fragment)'
+      '<p>a &lt; \t&gt;b</p>',
+      'should *not* support whitespace in the opening tag (fragment)'
     )
 
     t.equal(
@@ -237,8 +237,8 @@ test('micromark-extension-mdx-jsx', function (t) {
         extensions: [syntax()],
         htmlExtensions: [html]
       }),
-      '<p>a b</p>',
-      'should support whitespace in the opening tag (named)'
+      '<p>a &lt;\nb\t&gt;b</p>',
+      'should *not* support whitespace in the opening tag (named)'
     )
 
     t.throws(
@@ -922,6 +922,12 @@ test('micromark-extension-mdx-jsx', function (t) {
       }),
       '<blockquote>\n<p>a  e</p>\n</blockquote>',
       'should support line endings in attribute expressions'
+    )
+
+    t.equal(
+      micromark('1 < 3', {extensions: [syntax()], htmlExtensions: [html]}),
+      '<p>1 &lt; 3</p>',
+      'should allow `<` followed by markdown whitespace as text in markdown'
     )
 
     t.end()
