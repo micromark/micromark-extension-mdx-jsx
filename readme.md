@@ -137,7 +137,7 @@ in [`mdast-util-mdx-jsx`][util].
 <a id=x-double-quoted href=#x-double-quoted>doubleQuoted</a> ::= '"' *<a href=#x-double-quoted-text>doubleQuotedText</a> '"'
 <a id=x-single-quoted href=#x-single-quoted>singleQuoted</a> ::= "'" *<a href=#x-single-quoted-text>singleQuotedText</a> "'"
 
-<a id=x-space-or-tab href=#x-space-or-tab>spaceOrTab</a> ::= " " | "\t"
+<a id=x-space-or-tab href=#x-space-or-tab>spaceOrTab</a> ::= ' ' | '\t'
 <a id=x-text href=#x-text>text</a> ::= <a href=#x-character>character</a> - '<' - '{'
 <a id=x-whitespace href=#x-whitespace>whitespace</a> ::= <a href=#x-es-whitespace>esWhitespace</a>
 <a id=x-double-quoted-text href=#x-double-quoted-text>doubleQuotedText</a> ::= <a href=#x-character>character</a> - '"'
