@@ -102,6 +102,8 @@ in [`mdast-util-mdx-jsx`][util].
 
 <a id=x-data href=#x-data>data</a> ::= <a href=#x-element>element</a> | <a href=#x-text>text</a>
 
+; constraint: markdown whitespace (<a href=#x-space-or-tab>spaceOrTab</a> | '\r' | '\n') is NOT
+; allowed directly after `&lt;` in order to allow `1 &lt; 3` in markdown.
 <a id=x-tag href=#x-tag>tag</a> ::=
   '<' *1<a href=#x-closing>closing</a>
   *1(*<a href=#x-whitespace>whitespace</a> <a href=#x-name>name</a> *1<a href=#x-attributes-after-identifier>attributesAfterIdentifier</a> *1<a href=#x-closing>closing</a>)
@@ -113,7 +115,8 @@ in [`mdast-util-mdx-jsx`][util].
 <a id=x-attributes-after-value href=#x-attributes-after-value>attributesAfterValue</a> ::=
   *<a href=#x-whitespace>whitespace</a> (<a href=#x-attributes-boolean>attributesBoolean</a> | <a href=#x-attributes-expression>attributesExpression</a> | <a href=#x-attributes-value>attributesValue</a>)
 <a name=attributes-boolean href=#x-attributes-boolean>attributesBoolean</a> ::= <a href=#x-key>key</a> *1<a href=#x-attributes-after-identifier>attributesAfterIdentifier</a>
-; Note: in gnostic mode the value of the expression must instead be a single valid ES spread expression
+; Note: in gnostic mode the value of the expression must instead be a single valid ES spread
+; expression
 <a name=attributes-expression href=#x-attributes-expression>attributesExpression</a> ::= <a href=#x-expression>expression</a> *1<a href=#x-attributes-after-value>attributesAfterValue</a>
 <a name=attributes-value href=#x-attributes-value>attributesValue</a> ::= <a href=#x-key>key</a> <a href=#x-initializer>initializer</a> *1<a href=#x-attributes-after-value>attributesAfterValue</a>
 
