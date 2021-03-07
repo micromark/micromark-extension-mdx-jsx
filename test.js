@@ -185,6 +185,14 @@ test('micromark-extension-mdx-jsx', function (t) {
 
     t.throws(
       function () {
+        micromark('a <b c={} /> d', {extensions: [syntax({acorn: acorn})]})
+      },
+      /Unexpected empty expression/,
+      'should crash on an empty attribute value expression'
+    )
+
+    t.throws(
+      function () {
         micromark('a <b {1 + 1} /> c', {extensions: [syntax({acorn: acorn})]})
       },
       /Could not parse expression with acorn: Unexpected token/,

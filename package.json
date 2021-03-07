@@ -33,7 +33,7 @@
   "dependencies": {
     "estree-util-is-identifier-name": "^1.0.0",
     "micromark": "~2.11.0",
-    "micromark-extension-mdx-expression": "^0.3.0",
+    "micromark-extension-mdx-expression": "^0.3.2",
     "vfile-message": "^2.0.0"
   },
   "devDependencies": {
