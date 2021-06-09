@@ -13,11 +13,16 @@
 This package provides the low-level modules for integrating with the micromark
 tokenizer but has no handling of compiling to HTML: go to a syntax tree instead.
 
-You should use this with [`mdast-util-mdx-jsx`][util] (**[mdast][]**).
-Alternatively, use either [`micromark-extension-mdx`][mdx] or
-[`micromark-extension-mdxjs`][mdxjs] with [`mdast-util-mdx`][mdast-util-mdx] to
-support all of MDX (or MDX.js).
-Or, use it through [`remark-mdx`][remark-mdx] (**[remark][]**).
+## When to use this
+
+This package is already included in [xdm][] and [`mdx-js/mdx` (next)][mdx-js].
+
+You should probably use [`micromark-extension-mdx`][mdx] or
+[`micromark-extension-mdxjs`][mdxjs] instead, which combine this package with
+other MDX features.
+Alternatively, if you’re using [`micromark`][micromark] or
+[`mdast-util-from-markdown`][from-markdown] and you don’t want all of MDX, use
+this package.
 
 ## Install
 
@@ -32,20 +37,39 @@ npm install micromark-extension-mdx-jsx
 
 ## Use
 
-See [`mdast-util-mdx-jsx`][util] for an example.
+```js
+import {micromark} from 'micromark'
+import {mdxJsx} from 'micromark-extension-mdx-jsx'
+
+const output = micromark('a <b c d="e" /> f', {extensions: [mdxJsx()]})
+
+console.log(output)
+```
+
+Yields:
+
+```html
+<p>a  f</p>
+```
+
+…which is rather useless: go to a syntax tree with
+[`mdast-util-from-markdown`][from-markdown] and
+[`mdast-util-mdx-expression`][util] instead.
 
 ## API
 
 This package exports the following identifiers: `mdxJsx`.
 There is no default export.
 
+The export map supports the endorsed
+[`development` condition](https://nodejs.org/api/packages.html#packages_resolving_user_conditions).
+Run `node --conditions development module.js` to get instrumented dev code.
+Without this condition, production code is loaded.
+
 ### `mdxJsx(options?)`
 
-Support [MDX][mdx-js] (or MDX.js) JSX.
-
-The export of `syntax` is a function that can be called with options and returns
-an extension for the micromark parser (to tokenize JSX; can be passed in
-`extensions`).
+A function that can be called with options that returns an extension for
+micromark to parse JSX (can be passed in `extensions`).
 
 ##### `options`
 
@@ -358,9 +382,7 @@ abide by its terms.
 
 [micromark]: https://github.com/micromark/micromark
 
-[remark]: https://github.com/remarkjs/remark
-
-[mdast]: https://github.com/syntax-tree/mdast
+[xdm]: https://github.com/wooorm/xdm
 
 [mdx-js]: https://github.com/mdx-js/mdx
 
@@ -382,4 +404,4 @@ abide by its terms.
 
 [acorn]: https://github.com/acornjs/acorn
 
-[remark-mdx]: https://github.com/mdx-js/mdx/tree/next/packages/remark-mdx
+[from-markdown]: https://github.com/syntax-tree/mdast-util-from-markdown
