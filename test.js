@@ -1,7 +1,7 @@
 var acorn = require('acorn')
 var test = require('tape')
 var micromark = require('micromark/lib')
-var syntax = require('.')
+var syntax = require('./index.js')
 
 var html = {
   enter: {mdxJsxTextTag: start, mdxJsxFlowTag: start},
