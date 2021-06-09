@@ -1,2 +1,1 @@
-'use strict'
-module.exports = require('./lib.js')
+export {mdxJsx} from './lib/syntax.js'

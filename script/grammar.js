@@ -1,12 +1,10 @@
-var fs = require('fs')
-var path = require('path')
-var zone = require('mdast-zone')
+import fs from 'fs'
+import path from 'path'
+import {zone} from 'mdast-zone'
 
-var syntax = fs.readFileSync(path.join(__dirname, 'grammar.html'))
+var syntax = fs.readFileSync(path.join('script', 'grammar.html'))
 
-module.exports = grammar
-
-function grammar() {
+export default function grammar() {
   return transform
 }
 

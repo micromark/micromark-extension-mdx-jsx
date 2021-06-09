@@ -21,6 +21,9 @@ Or, use it through [`remark-mdx`][remark-mdx] (**[remark][]**).
 
 ## Install
 
+This package is [ESM only](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c):
+Node 12+ is needed to use it and it must be `import`ed instead of `require`d.
+
 [npm][]:
 
 ```sh
@@ -33,7 +36,10 @@ See [`mdast-util-mdx-jsx`][util] for an example.
 
 ## API
 
-### `syntax(options?)`
+This package exports the following identifiers: `mdxJsx`.
+There is no default export.
+
+### `mdxJsx(options?)`
 
 Support [MDX][mdx-js] (or MDX.js) JSX.
 

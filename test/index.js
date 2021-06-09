@@ -1,7 +1,7 @@
-var acorn = require('acorn')
-var test = require('tape')
-var micromark = require('micromark/lib')
-var syntax = require('./index.js')
+import * as acorn from 'acorn'
+import test from 'tape'
+import {micromark} from 'micromark'
+import {mdxJsx as syntax} from '../index.js'
 
 var html = {
   enter: {mdxJsxTextTag: start, mdxJsxFlowTag: start},
@@ -122,7 +122,7 @@ test('micromark-extension-mdx-jsx', function (t) {
   t.test('text (gnostic)', function (t) {
     t.equal(
       micromark('a <b /> c', {
-        extensions: [syntax({acorn: acorn})],
+        extensions: [syntax({acorn})],
         htmlExtensions: [html]
       }),
       '<p>a  c</p>',
@@ -131,7 +131,7 @@ test('micromark-extension-mdx-jsx', function (t) {
 
     t.equal(
       micromark('a <b> c </b> d', {
-        extensions: [syntax({acorn: acorn})],
+        extensions: [syntax({acorn})],
         htmlExtensions: [html]
       }),
       '<p>a  c  d</p>',
@@ -140,7 +140,7 @@ test('micromark-extension-mdx-jsx', function (t) {
 
     t.equal(
       micromark('a <b> c', {
-        extensions: [syntax({acorn: acorn})],
+        extensions: [syntax({acorn})],
         htmlExtensions: [html]
       }),
       '<p>a  c</p>',
@@ -149,7 +149,7 @@ test('micromark-extension-mdx-jsx', function (t) {
 
     t.equal(
       micromark('a <b {...c} /> d', {
-        extensions: [syntax({acorn: acorn})],
+        extensions: [syntax({acorn})],
         htmlExtensions: [html]
       }),
       '<p>a  d</p>',
@@ -158,7 +158,7 @@ test('micromark-extension-mdx-jsx', function (t) {
 
     t.equal(
       micromark('a <b {...{c: 1, d: Infinity, e: false}} /> f', {
-        extensions: [syntax({acorn: acorn})],
+        extensions: [syntax({acorn})],
         htmlExtensions: [html]
       }),
       '<p>a  f</p>',
@@ -167,7 +167,7 @@ test('micromark-extension-mdx-jsx', function (t) {
 
     t.equal(
       micromark('a <b {...[1, Infinity, false]} /> d', {
-        extensions: [syntax({acorn: acorn})],
+        extensions: [syntax({acorn})],
         htmlExtensions: [html]
       }),
       '<p>a  d</p>',
@@ -176,7 +176,7 @@ test('micromark-extension-mdx-jsx', function (t) {
 
     t.equal(
       micromark('a <b c={1 + 1} /> d', {
-        extensions: [syntax({acorn: acorn})],
+        extensions: [syntax({acorn})],
         htmlExtensions: [html]
       }),
       '<p>a  d</p>',
@@ -185,7 +185,7 @@ test('micromark-extension-mdx-jsx', function (t) {
 
     t.throws(
       function () {
-        micromark('a <b c={} /> d', {extensions: [syntax({acorn: acorn})]})
+        micromark('a <b c={} /> d', {extensions: [syntax({acorn})]})
       },
       /Unexpected empty expression/,
       'should crash on an empty attribute value expression'
@@ -193,7 +193,7 @@ test('micromark-extension-mdx-jsx', function (t) {
 
     t.throws(
       function () {
-        micromark('a <b {1 + 1} /> c', {extensions: [syntax({acorn: acorn})]})
+        micromark('a <b {1 + 1} /> c', {extensions: [syntax({acorn})]})
       },
       /Could not parse expression with acorn: Unexpected token/,
       'should crash on a non-spread attribute expression'
@@ -201,7 +201,7 @@ test('micromark-extension-mdx-jsx', function (t) {
 
     t.throws(
       function () {
-        micromark('a <b c={?} /> d', {extensions: [syntax({acorn: acorn})]})
+        micromark('a <b c={?} /> d', {extensions: [syntax({acorn})]})
       },
       /Could not parse expression with acorn: Unexpected token/,
       'should crash on invalid JS in an attribute value expression'
@@ -209,7 +209,7 @@ test('micromark-extension-mdx-jsx', function (t) {
 
     t.throws(
       function () {
-        micromark('a <b {?} /> c', {extensions: [syntax({acorn: acorn})]})
+        micromark('a <b {?} /> c', {extensions: [syntax({acorn})]})
       },
       /Could not parse expression with acorn: Unexpected token/,
       'should crash on invalid JS in an attribute expression'
