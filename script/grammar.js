@@ -1,3 +1,7 @@
+/**
+ * @typedef {import('mdast').Root} Root
+ */
+
 import fs from 'fs'
 import path from 'path'
 import {zone} from 'mdast-zone'
@@ -5,17 +9,14 @@ import {zone} from 'mdast-zone'
 const syntax = fs.readFileSync(path.join('script', 'grammar.html'))
 
 export default function grammar() {
-  return transform
-}
-
-function transform(tree) {
-  zone(tree, 'grammar', inject)
-}
-
-function inject(start, nodes, end) {
-  return [
-    start,
-    {type: 'html', value: '<pre><code>' + syntax + '</code></pre>'},
-    end
-  ]
+  /** @param {Root} tree */
+  return function (tree) {
+    zone(tree, 'grammar', (start, _, end) => {
+      return [
+        start,
+        {type: 'html', value: '<pre><code>' + syntax + '</code></pre>'},
+        end
+      ]
+    })
+  }
 }

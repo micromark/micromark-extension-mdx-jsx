@@ -1,17 +1,25 @@
+/**
+ * @typedef {import('micromark-util-types').HtmlExtension} HtmlExtension
+ * @typedef {import('micromark-util-types').Handle} Handle
+ */
+
 import * as acorn from 'acorn'
 import test from 'tape'
 import {micromark} from 'micromark'
 import {mdxJsx as syntax} from '../dev/index.js'
 
+/** @type {HtmlExtension} */
 const html = {
   enter: {mdxJsxTextTag: start, mdxJsxFlowTag: start},
   exit: {mdxJsxTextTag: end, mdxJsxFlowTag: end}
 }
 
+/** @type {Handle} */
 function start() {
   this.buffer()
 }
 
+/** @type {Handle} */
 function end() {
   this.resume()
   this.setData('slurpOneLineEnding', true)
@@ -21,6 +29,7 @@ test('micromark-extension-mdx-jsx', (t) => {
   t.test('core', (t) => {
     t.throws(
       () => {
+        // @ts-expect-error: runtime.
         syntax({acorn: true})
       },
       /Expected a proper `acorn` instance passed in as `options\.acorn`/,
@@ -29,6 +38,7 @@ test('micromark-extension-mdx-jsx', (t) => {
 
     t.throws(
       () => {
+        // @ts-expect-error: runtime.
         syntax({acornOptions: {}})
       },
       /Expected an `acorn` instance passed in as `options\.acorn`/,
