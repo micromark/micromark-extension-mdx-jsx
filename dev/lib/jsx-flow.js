@@ -1,5 +1,8 @@
-import {markdownLineEnding} from 'micromark-util-character'
+import assert from 'assert'
 import {factorySpace} from 'micromark-factory-space'
+import {markdownLineEnding} from 'micromark-util-character'
+import {codes} from 'micromark-util-symbol/codes.js'
+import {types} from 'micromark-util-symbol/types.js'
 import {factoryTag} from './factory-tag.js'
 
 export function jsxFlow(acorn, acornOptions, addResult) {
@@ -11,10 +14,11 @@ export function jsxFlow(acorn, acornOptions, addResult) {
     return start
 
     function start(code) {
+      assert(code === codes.lessThan, 'expected `<`')
       return factoryTag.call(
         self,
         effects,
-        factorySpace(effects, after, 'whitespace'),
+        factorySpace(effects, after, types.whitespace),
         nok,
         acorn,
         acornOptions,
@@ -49,11 +53,11 @@ export function jsxFlow(acorn, acornOptions, addResult) {
 
     function after(code) {
       // Another tag.
-      if (code === 60 /* `<` */) {
-        return start(code)
-      }
-
-      return code === null || markdownLineEnding(code) ? ok(code) : nok(code)
+      return code === codes.lessThan
+        ? start(code)
+        : code === codes.eof || markdownLineEnding(code)
+        ? ok(code)
+        : nok(code)
     }
   }
 }

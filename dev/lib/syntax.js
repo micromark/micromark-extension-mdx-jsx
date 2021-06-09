@@ -1,3 +1,4 @@
+import {codes} from 'micromark-util-symbol/codes.js'
 import {jsxText} from './jsx-text.js'
 import {jsxFlow} from './jsx-flow.js'
 
@@ -7,7 +8,7 @@ export function mdxJsx(options = {}) {
   let acornOptions
 
   if (acorn) {
-    if (!acorn.parseExpressionAt) {
+    if (!acorn.parse || !acorn.parseExpressionAt) {
       throw new Error(
         'Expected a proper `acorn` instance passed in as `options.acorn`'
       )
@@ -23,7 +24,7 @@ export function mdxJsx(options = {}) {
   }
 
   return {
-    flow: {60: jsxFlow(acorn, acornOptions, addResult)},
-    text: {60: jsxText(acorn, acornOptions, addResult)}
+    flow: {[codes.lessThan]: jsxFlow(acorn, acornOptions, addResult)},
+    text: {[codes.lessThan]: jsxText(acorn, acornOptions, addResult)}
   }
 }

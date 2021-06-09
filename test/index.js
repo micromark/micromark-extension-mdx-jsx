@@ -1,7 +1,7 @@
 import * as acorn from 'acorn'
 import test from 'tape'
 import {micromark} from 'micromark'
-import {mdxJsx as syntax} from '../index.js'
+import {mdxJsx as syntax} from '../dev/index.js'
 
 const html = {
   enter: {mdxJsxTextTag: start, mdxJsxFlowTag: start},
