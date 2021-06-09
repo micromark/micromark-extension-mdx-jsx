@@ -3,7 +3,7 @@ import test from 'tape'
 import {micromark} from 'micromark'
 import {mdxJsx as syntax} from '../index.js'
 
-var html = {
+const html = {
   enter: {mdxJsxTextTag: start, mdxJsxFlowTag: start},
   exit: {mdxJsxTextTag: end, mdxJsxFlowTag: end}
 }
@@ -17,10 +17,10 @@ function end() {
   this.setData('slurpOneLineEnding', true)
 }
 
-test('micromark-extension-mdx-jsx', function (t) {
-  t.test('core', function (t) {
+test('micromark-extension-mdx-jsx', (t) => {
+  t.test('core', (t) => {
     t.throws(
-      function () {
+      () => {
         syntax({acorn: true})
       },
       /Expected a proper `acorn` instance passed in as `options\.acorn`/,
@@ -28,7 +28,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         syntax({acornOptions: {}})
       },
       /Expected an `acorn` instance passed in as `options\.acorn`/,
@@ -36,7 +36,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         syntax({addResult: true})
       },
       /Expected an `acorn` instance passed in as `options\.acorn`/,
@@ -76,7 +76,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     t.end()
   })
 
-  t.test('text (agnostic)', function (t) {
+  t.test('text (agnostic)', (t) => {
     t.equal(
       micromark('a <b /> c', {extensions: [syntax()], htmlExtensions: [html]}),
       '<p>a  c</p>',
@@ -119,7 +119,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     t.end()
   })
 
-  t.test('text (gnostic)', function (t) {
+  t.test('text (gnostic)', (t) => {
     t.equal(
       micromark('a <b /> c', {
         extensions: [syntax({acorn})],
@@ -184,7 +184,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <b c={} /> d', {extensions: [syntax({acorn})]})
       },
       /Unexpected empty expression/,
@@ -192,7 +192,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <b {1 + 1} /> c', {extensions: [syntax({acorn})]})
       },
       /Could not parse expression with acorn: Unexpected token/,
@@ -200,7 +200,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <b c={?} /> d', {extensions: [syntax({acorn})]})
       },
       /Could not parse expression with acorn: Unexpected token/,
@@ -208,7 +208,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <b {?} /> c', {extensions: [syntax({acorn})]})
       },
       /Could not parse expression with acorn: Unexpected token/,
@@ -218,7 +218,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     t.end()
   })
 
-  t.test('text (complete)', function (t) {
+  t.test('text (complete)', (t) => {
     t.equal(
       micromark('a <b> c', {extensions: [syntax()], htmlExtensions: [html]}),
       '<p>a  c</p>',
@@ -250,7 +250,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <!> b', {extensions: [syntax()]})
       },
       /Unexpected character `!` \(U\+0021\) before name, expected a character that can start a name, such as a letter, `\$`, or `_`/,
@@ -258,7 +258,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <a></(> b.', {extensions: [syntax()]})
       },
       /Unexpected character `\(` \(U\+0028\) before name, expected a character that can start a name, such as a letter, `\$`, or `_`/,
@@ -272,7 +272,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <© /> b.', {extensions: [syntax()]})
       },
       /Unexpected character `©` \(U\+00A9\) before name, expected a character that can start a name, such as a letter, `\$`, or `_`/,
@@ -280,7 +280,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <!--b-->', {extensions: [syntax()]})
       },
       /Unexpected character `!` \(U\+0021\) before name, expected a character that can start a name, such as a letter, `\$`, or `_` \(note: to create a comment in MDX, use `{\/\* text \*\/}`\)/,
@@ -288,7 +288,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <// b\nc/>', {extensions: [syntax()]})
       },
       /Unexpected character `\/` \(U\+002F\) before name, expected a character that can start a name, such as a letter, `\$`, or `_` \(note: JS comments in JSX tags are not supported in MDX\)/,
@@ -296,7 +296,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <b// c\nd/>', {extensions: [syntax()]})
       },
       /Unexpected character `\/` \(U\+002F\) after self-closing slash, expected `>` to end the tag \(note: JS comments in JSX tags are not supported in MDX\)/,
@@ -304,7 +304,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a </*b*/c>', {extensions: [syntax()]})
       },
       /Unexpected character `\*` \(U\+002A\) before name, expected a character that can start a name, such as a letter, `\$`, or `_` \(note: JS comments in JSX tags are not supported in MDX\)/,
@@ -312,7 +312,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <b/*c*/>', {extensions: [syntax()]})
       },
       /Unexpected character `\*` \(U\+002A\) after self-closing slash, expected `>` to end the tag \(note: JS comments in JSX tags are not supported in MDX\)/,
@@ -329,7 +329,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <a¬ /> b.', {extensions: [syntax()]})
       },
       /Unexpected character `¬` \(U\+00AC\) in name, expected a name character such as letters, digits, `\$`, or `_`; whitespace before attributes; or the end of the tag/,
@@ -337,7 +337,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <b@c.d>', {extensions: [syntax()]})
       },
       /Unexpected character `@` \(U\+0040\) in name, expected a name character such as letters, digits, `\$`, or `_`; whitespace before attributes; or the end of the tag \(note: to create a link in MDX, use `\[text]\(url\)`\)/,
@@ -354,7 +354,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <a?> c.', {extensions: [syntax()]})
       },
       /Unexpected character `\?` \(U\+003F\) in name, expected a name character such as letters, digits, `\$`, or `_`; whitespace before attributes; or the end of the tag/,
@@ -371,7 +371,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <b.c@d.e>', {extensions: [syntax()]})
       },
       /Unexpected character `@` \(U\+0040\) in member name, expected a name character such as letters, digits, `\$`, or `_`; whitespace before attributes; or the end of the tag \(note: to create a link in MDX, use `\[text]\(url\)`\)/,
@@ -388,7 +388,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <a:+> c.', {extensions: [syntax()]})
       },
       /Unexpected character `\+` \(U\+002B\) before local name, expected a character that can start a name, such as a letter, `\$`, or `_` \(note: to create a link in MDX, use `\[text]\(url\)`\)/,
@@ -396,7 +396,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <http://example.com>', {extensions: [syntax()]})
       },
       /Unexpected character `\/` \(U\+002F\) before local name, expected a character that can start a name, such as a letter, `\$`, or `_` \(note: to create a link in MDX, use `\[text]\(url\)`\)/,
@@ -404,7 +404,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <http: >', {extensions: [syntax()]})
       },
       /Unexpected character `>` \(U\+003E\) before local name, expected a character that can start a name, such as a letter, `\$`, or `_`/,
@@ -412,7 +412,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <a:b|> c.', {extensions: [syntax()]})
       },
       /Unexpected character `\|` \(U\+007C\) in local name, expected a name character such as letters, digits, `\$`, or `_`; whitespace before attributes; or the end of the tag/,
@@ -420,7 +420,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <a..> c.', {extensions: [syntax()]})
       },
       /Unexpected character `\.` \(U\+002E\) before member name, expected a character that can start an attribute name, such as a letter, `\$`, or `_`; whitespace before attributes; or the end of the tag/,
@@ -428,7 +428,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <a.b,> c.', {extensions: [syntax()]})
       },
       /Unexpected character `,` \(U\+002C\) in member name, expected a name character such as letters, digits, `\$`, or `_`; whitespace before attributes; or the end of the tag/,
@@ -436,7 +436,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <a:b .> c.', {extensions: [syntax()]})
       },
       /Unexpected character `\.` \(U\+002E\) after local name, expected a character that can start an attribute name, such as a letter, `\$`, or `_`; whitespace before attributes; or the end of the tag/,
@@ -444,7 +444,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <a.b :> c.', {extensions: [syntax()]})
       },
       /Unexpected character `:` \(U\+003A\) after member name, expected a character that can start an attribute name, such as a letter, `\$`, or `_`; whitespace before attributes; or the end of the tag/,
@@ -452,7 +452,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <a => c.', {extensions: [syntax()]})
       },
       /Unexpected character `=` \(U\+003D\) after name, expected a character that can start an attribute name, such as a letter, `\$`, or `_`; whitespace before attributes; or the end of the tag/,
@@ -541,7 +541,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <b {...p}~>c</b>.', {extensions: [syntax()]})
       },
       /Unexpected character `~` \(U\+007E\) before attribute name, expected a character that can start an attribute name, such as a letter, `\$`, or `_`; whitespace before attributes; or the end of the tag/,
@@ -549,7 +549,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <b {...', {extensions: [syntax()]})
       },
       /Unexpected end of file in expression, expected a corresponding closing brace for `{`/,
@@ -557,7 +557,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <a b@> c.', {extensions: [syntax()]})
       },
       /Unexpected character `@` \(U\+0040\) in attribute name, expected an attribute name character such as letters, digits, `\$`, or `_`; `=` to initialize a value; whitespace before attributes; or the end of the tag/,
@@ -583,7 +583,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <a b 1> c.', {extensions: [syntax()]})
       },
       /Unexpected character `1` \(U\+0031\) after attribute name, expected a character that can start an attribute name, such as a letter, `\$`, or `_`; `=` to initialize a value; or the end of the tag/,
@@ -591,7 +591,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <a b:#> c.', {extensions: [syntax()]})
       },
       /Unexpected character `#` \(U\+0023\) before local attribute name, expected a character that can start an attribute name, such as a letter, `\$`, or `_`/,
@@ -599,7 +599,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <a b:c%> c.', {extensions: [syntax()]})
       },
       /Unexpected character `%` \(U\+0025\) in local attribute name, expected an attribute name character such as letters, digits, `\$`, or `_`; `=` to initialize a value; whitespace before attributes; or the end of the tag/,
@@ -607,7 +607,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <a b:c ^> c.', {extensions: [syntax()]})
       },
       /Unexpected character `\^` \(U\+005E\) after local attribute name, expected a character that can start an attribute name, such as a letter, `\$`, or `_`; `=` to initialize a value; or the end of the tag/,
@@ -633,7 +633,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <a b=``> c.', {extensions: [syntax()]})
       },
       /Unexpected character `` ` `` \(U\+0060\) before attribute value, expected a character that can start an attribute value, such as `"`, `'`, or `{`/,
@@ -641,7 +641,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <a b=<c />> d.', {extensions: [syntax()]})
       },
       /Unexpected character `<` \(U\+003C\) before attribute value, expected a character that can start an attribute value, such as `"`, `'`, or `{` \(note: to use an element or fragment as a prop value in MDX, use `{<element \/>}`\)/,
@@ -649,7 +649,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <a b="> c.', {extensions: [syntax()]})
       },
       /Unexpected end of file in attribute value, expected a corresponding closing quote `"`/,
@@ -657,7 +657,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark("a <a b='> c.", {extensions: [syntax()]})
       },
       /Unexpected end of file in attribute value, expected a corresponding closing quote `'`/,
@@ -665,7 +665,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <a b={> c.', {extensions: [syntax()]})
       },
       /Unexpected end of file in expression, expected a corresponding closing brace for `{`/,
@@ -673,7 +673,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <a b=""*> c.', {extensions: [syntax()]})
       },
       /Unexpected character `\*` \(U\+002A\) before attribute name, expected a character that can start an attribute name, such as a letter, `\$`, or `_`; whitespace before attributes; or the end of the tag/,
@@ -699,7 +699,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     )
 
     t.throws(
-      function () {
+      () => {
         micromark('a <a/b> c.', {extensions: [syntax()]})
       },
       /Unexpected character `b` \(U\+0062\) after self-closing slash, expected `>` to end the tag/,
@@ -712,18 +712,18 @@ test('micromark-extension-mdx-jsx', function (t) {
       'should support whitespace directly after closing slash'
     )
 
-    t.doesNotThrow(function () {
+    t.doesNotThrow(() => {
       micromark('a > c.', {extensions: [syntax()], htmlExtensions: [html]})
     }, 'should *not* crash on closing angle in text')
 
-    t.doesNotThrow(function () {
+    t.doesNotThrow(() => {
       micromark('a <>`<`</> c.', {
         extensions: [syntax()],
         htmlExtensions: [html]
       })
     }, 'should *not* crash on opening angle in tick code in an element')
 
-    t.doesNotThrow(function () {
+    t.doesNotThrow(() => {
       micromark('a <>`` ``` ``</>', {
         extensions: [syntax()],
         htmlExtensions: [html]
@@ -941,7 +941,7 @@ test('micromark-extension-mdx-jsx', function (t) {
     t.end()
   })
 
-  t.test('flow (agnostic)', function (t) {
+  t.test('flow (agnostic)', (t) => {
     t.equal(
       micromark('<a />', {
         extensions: [syntax()],
@@ -992,7 +992,7 @@ test('micromark-extension-mdx-jsx', function (t) {
 
   // Flow is mostly the same as `text`, so we only test the relevant
   // differences.
-  t.test('flow (essence)', function (t) {
+  t.test('flow (essence)', (t) => {
     t.equal(
       micromark('<a />', {extensions: [syntax()], htmlExtensions: [html]}),
       '',

@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import {zone} from 'mdast-zone'
 
-var syntax = fs.readFileSync(path.join('script', 'grammar.html'))
+const syntax = fs.readFileSync(path.join('script', 'grammar.html'))
 
 export default function grammar() {
   return transform
