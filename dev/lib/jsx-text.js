@@ -26,6 +26,7 @@ export function jsxText(acorn, acornOptions, addResult) {
       acorn,
       acornOptions,
       addResult,
+      true,
       'mdxJsxTextTag',
       'mdxJsxTextTagMarker',
       'mdxJsxTextTagClosingMarker',

@@ -1,5 +1,6 @@
 /**
  * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
+ * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
  * @typedef {import('micromark-util-types').Effects} Effects
  * @typedef {import('micromark-util-types').State} State
  * @typedef {import('micromark-util-types').Code} Code
@@ -21,6 +22,8 @@ import {constants} from 'micromark-util-symbol/constants.js'
 import {types} from 'micromark-util-symbol/types.js'
 import {VFileMessage} from 'vfile-message'
 
+const lazyLineEnd = {tokenize: tokenizeLazyLineEnd, partial: true}
+
 /**
  * @this {TokenizeContext}
  * @param {Effects} effects
@@ -29,6 +32,7 @@ import {VFileMessage} from 'vfile-message'
  * @param {Acorn|undefined} acorn
  * @param {AcornOptions|undefined} acornOptions
  * @param {boolean|undefined} addResult
+ * @param {boolean|undefined} allowLazy
  * @param {string} tagType
  * @param {string} tagMarkerType
  * @param {string} tagClosingMarkerType
@@ -63,6 +67,7 @@ export function factoryTag(
   acorn,
   acornOptions,
   addResult,
+  allowLazy,
   tagType,
   tagMarkerType,
   tagClosingMarkerType,
@@ -437,7 +442,9 @@ export function factoryTag(
         acorn,
         acornOptions,
         addResult,
-        true
+        true,
+        false,
+        allowLazy
       )(code)
     }
 
@@ -641,7 +648,10 @@ export function factoryTag(
         tagAttributeValueExpressionMarkerValue,
         acorn,
         acornOptions,
-        addResult
+        addResult,
+        false,
+        false,
+        allowLazy
       )(code)
     }
 
@@ -741,10 +751,14 @@ export function factoryTag(
   /** @type {State} */
   function optionalEsWhitespace(code) {
     if (markdownLineEnding(code)) {
-      effects.enter(types.lineEnding)
-      effects.consume(code)
-      effects.exit(types.lineEnding)
-      return optionalEsWhitespace
+      if (allowLazy) {
+        effects.enter(types.lineEnding)
+        effects.consume(code)
+        effects.exit(types.lineEnding)
+        return optionalEsWhitespace
+      }
+
+      return effects.attempt(lazyLineEnd, optionalEsWhitespace, crashEol)(code)
     }
 
     if (markdownSpace(code) || unicodeWhitespace(code)) {
@@ -768,6 +782,15 @@ export function factoryTag(
 
     effects.consume(code)
     return optionalEsWhitespaceContinue
+  }
+
+  /** @type {State} */
+  function crashEol() {
+    throw new VFileMessage(
+      'Unexpected lazy line in container, expected line to be prefixed with `>` when in a block quote, whitespace when in a list, etc',
+      self.now(),
+      'micromark-extension-mdx-jsx:unexpected-eof'
+    )
   }
 
   // Crash at a nonconforming character.
@@ -794,6 +817,27 @@ export function factoryTag(
       'micromark-extension-mdx-jsx:unexpected-' +
         (code === codes.eof ? 'eof' : 'character')
     )
+  }
+}
+
+/** @type {Tokenizer} */
+function tokenizeLazyLineEnd(effects, ok, nok) {
+  const self = this
+
+  return start
+
+  /** @type {State} */
+  function start(code) {
+    assert(markdownLineEnding(code), 'expected eol')
+    effects.enter(types.lineEnding)
+    effects.consume(code)
+    effects.exit(types.lineEnding)
+    return lineStart
+  }
+
+  /** @type {State} */
+  function lineStart(code) {
+    return self.parser.lazy[self.now().line] ? nok(code) : ok(code)
   }
 }
 

@@ -1045,6 +1045,31 @@ test('micromark-extension-mdx-jsx', (t) => {
       'should support tags after tags'
     )
 
+    t.throws(
+      () => {
+        micromark('> <X\n/>', {extensions: [syntax()]})
+      },
+      /Unexpected lazy line in container/,
+      'should not support lazy flow (1)'
+    )
+
+    t.throws(
+      () => {
+        micromark('> a\n> <X\n/>', {extensions: [syntax()]})
+      },
+      /Unexpected lazy line in container/,
+      'should not support lazy flow (2)'
+    )
+
+    t.deepEqual(
+      micromark('> a\n<X />', {
+        extensions: [syntax()],
+        htmlExtensions: [html]
+      }),
+      '<blockquote>\n<p>a</p>\n</blockquote>\n',
+      'should not support lazy flow (3)'
+    )
+
     t.end()
   })
 

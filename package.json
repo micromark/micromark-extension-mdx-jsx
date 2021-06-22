@@ -43,11 +43,11 @@
   "dependencies": {
     "@types/acorn": "^4.0.0",
     "estree-util-is-identifier-name": "^2.0.0",
-    "micromark-factory-mdx-expression": "^1.0.0-alpha.1",
-    "micromark-factory-space": "^1.0.0-alpha.2",
-    "micromark-util-character": "^1.0.0-alpha.2",
-    "micromark-util-symbol": "^1.0.0-alpha.2",
-    "micromark-util-types": "^1.0.0-alpha.2",
+    "micromark-factory-mdx-expression": "^1.0.0",
+    "micromark-factory-space": "^1.0.0",
+    "micromark-util-character": "^1.0.0",
+    "micromark-util-symbol": "^1.0.0",
+    "micromark-util-types": "^1.0.0",
     "vfile-message": "^3.0.0"
   },
   "devDependencies": {
@@ -57,8 +57,8 @@
     "acorn-jsx": "^5.0.0",
     "c8": "^7.0.0",
     "mdast-zone": "^5.0.0",
-    "micromark": "^3.0.0-alpha.2",
-    "micromark-build": "^1.0.0-alpha.1",
+    "micromark": "^3.0.0",
+    "micromark-build": "^1.0.0",
     "prettier": "^2.0.0",
     "remark-cli": "^9.0.0",
     "remark-preset-wooorm": "^8.0.0",

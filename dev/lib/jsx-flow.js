@@ -39,6 +39,7 @@ export function jsxFlow(acorn, acornOptions, addResult) {
         acorn,
         acornOptions,
         addResult,
+        false,
         'mdxJsxFlowTag',
         'mdxJsxFlowTagMarker',
         'mdxJsxFlowTagClosingMarker',
