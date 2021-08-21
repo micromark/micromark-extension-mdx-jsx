@@ -6,7 +6,7 @@
  * @typedef {import('micromark-factory-mdx-expression').AcornOptions} AcornOptions
  */
 
-import assert from 'assert'
+import assert from 'node:assert'
 import {factorySpace} from 'micromark-factory-space'
 import {markdownLineEnding} from 'micromark-util-character'
 import {codes} from 'micromark-util-symbol/codes.js'

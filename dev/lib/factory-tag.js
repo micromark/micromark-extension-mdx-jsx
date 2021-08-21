@@ -8,7 +8,7 @@
  * @typedef {import('micromark-factory-mdx-expression').AcornOptions} AcornOptions
  */
 
-import assert from 'assert'
+import assert from 'node:assert'
 import {start as idStart, cont as idCont} from 'estree-util-is-identifier-name'
 import {factoryMdxExpression} from 'micromark-factory-mdx-expression'
 import {
