@@ -3,10 +3,13 @@
  * @typedef {import('micromark-util-types').Handle} Handle
  */
 
-import * as acorn from 'acorn'
 import test from 'tape'
+import {Parser} from 'acorn'
+import acornJsx from 'acorn-jsx'
 import {micromark} from 'micromark'
 import {mdxJsx as syntax} from '../dev/index.js'
+
+const acorn = Parser.extend(acornJsx())
 
 /** @type {HtmlExtension} */
 const html = {
@@ -223,6 +226,15 @@ test('micromark-extension-mdx-jsx', (t) => {
       },
       /Could not parse expression with acorn: Unexpected token/,
       'should crash on invalid JS in an attribute expression'
+    )
+
+    t.equal(
+      micromark('a <b c={(2)} d={<e />} /> f', {
+        extensions: [syntax({acorn})],
+        htmlExtensions: [html]
+      }),
+      '<p>a  f</p>',
+      'should support parenthesized expressions'
     )
 
     t.end()
