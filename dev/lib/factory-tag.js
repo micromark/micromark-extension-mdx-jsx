@@ -8,7 +8,7 @@
  * @typedef {import('micromark-factory-mdx-expression').AcornOptions} AcornOptions
  */
 
-import assert from 'power-assert'
+import {ok as assert} from 'uvu/assert'
 import {start as idStart, cont as idCont} from 'estree-util-is-identifier-name'
 import {factoryMdxExpression} from 'micromark-factory-mdx-expression'
 import {
