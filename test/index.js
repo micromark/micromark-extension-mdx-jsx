@@ -228,6 +228,14 @@ test('micromark-extension-mdx-jsx', (t) => {
       'should crash on invalid JS in an attribute expression'
     )
 
+    t.throws(
+      () => {
+        micromark('a <b{c=d}={}/> f', {extensions: [syntax({acorn})]})
+      },
+      /Unexpected `ExpressionStatement` in code: expected an object spread/,
+      'should crash on invalid JS in an attribute expression (2)'
+    )
+
     t.equal(
       micromark('a <b c={(2)} d={<e />} /> f', {
         extensions: [syntax({acorn})],
