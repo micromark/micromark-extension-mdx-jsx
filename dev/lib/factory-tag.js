@@ -4,6 +4,7 @@
  * @typedef {import('micromark-util-types').Effects} Effects
  * @typedef {import('micromark-util-types').State} State
  * @typedef {import('micromark-util-types').Code} Code
+ * @typedef {import('micromark-util-types').Point} Point
  * @typedef {import('micromark-factory-mdx-expression').Acorn} Acorn
  * @typedef {import('micromark-factory-mdx-expression').AcornOptions} AcornOptions
  */
@@ -11,6 +12,7 @@
 import {ok as assert} from 'uvu/assert'
 import {start as idStart, cont as idCont} from 'estree-util-is-identifier-name'
 import {factoryMdxExpression} from 'micromark-factory-mdx-expression'
+import {factorySpace} from 'micromark-factory-space'
 import {
   markdownLineEnding,
   markdownLineEndingOrSpace,
@@ -57,7 +59,7 @@ const lazyLineEnd = {tokenize: tokenizeLazyLineEnd, partial: true}
  * @param {string} tagAttributeValueLiteralValueType
  * @param {string} tagAttributeValueExpressionType
  * @param {string} tagAttributeValueExpressionMarkerType
- * @param {string} tagAttributeValueExpressionMarkerValue
+ * @param {string} tagAttributeValueExpressionValueType
  */
 // eslint-disable-next-line max-params
 export function factoryTag(
@@ -92,19 +94,22 @@ export function factoryTag(
   tagAttributeValueLiteralValueType,
   tagAttributeValueExpressionType,
   tagAttributeValueExpressionMarkerType,
-  tagAttributeValueExpressionMarkerValue
+  tagAttributeValueExpressionValueType
 ) {
   const self = this
   /** @type {State} */
   let returnState
   /** @type {NonNullable<Code>|undefined} */
   let marker
+  /** @type {Point|undefined} */
+  let startPoint
 
   return start
 
   /** @type {State} */
   function start(code) {
     assert(code === codes.lessThan, 'expected `<`')
+    startPoint = self.now()
     effects.enter(tagType)
     effects.enter(tagMarkerType)
     effects.consume(code)
@@ -432,6 +437,7 @@ export function factoryTag(
 
     // Attribute expression.
     if (code === codes.leftCurlyBrace) {
+      assert(startPoint, 'expected `startPoint` to be defined')
       return factoryMdxExpression.call(
         self,
         effects,
@@ -444,7 +450,8 @@ export function factoryTag(
         addResult,
         true,
         false,
-        allowLazy
+        allowLazy,
+        startPoint.column
       )(code)
     }
 
@@ -639,19 +646,21 @@ export function factoryTag(
 
     // Start of an assignment expression.
     if (code === codes.leftCurlyBrace) {
+      assert(startPoint, 'expected `startPoint` to be defined')
       return factoryMdxExpression.call(
         self,
         effects,
         afterAttributeValueExpression,
         tagAttributeValueExpressionType,
         tagAttributeValueExpressionMarkerType,
-        tagAttributeValueExpressionMarkerValue,
+        tagAttributeValueExpressionValueType,
         acorn,
         acornOptions,
         addResult,
         false,
         false,
-        allowLazy
+        allowLazy,
+        startPoint.column
       )(code)
     }
 
@@ -755,10 +764,24 @@ export function factoryTag(
         effects.enter(types.lineEnding)
         effects.consume(code)
         effects.exit(types.lineEnding)
-        return optionalEsWhitespace
+        return factorySpace(
+          effects,
+          optionalEsWhitespace,
+          types.linePrefix,
+          constants.tabSize
+        )
       }
 
-      return effects.attempt(lazyLineEnd, optionalEsWhitespace, crashEol)(code)
+      return effects.attempt(
+        lazyLineEnd,
+        factorySpace(
+          effects,
+          optionalEsWhitespace,
+          types.linePrefix,
+          constants.tabSize
+        ),
+        crashEol
+      )(code)
     }
 
     if (markdownSpace(code) || unicodeWhitespace(code)) {
