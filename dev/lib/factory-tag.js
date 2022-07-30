@@ -690,7 +690,7 @@ export function factoryTag(
       crash(
         code,
         'in attribute value',
-        'a corresponding closing quote `' + String.fromCharCode(marker) + '`'
+        'a corresponding closing quote `' + String.fromCodePoint(marker) + '`'
       )
     }
 
@@ -828,7 +828,9 @@ export function factoryTag(
         (code === codes.eof
           ? 'end of file'
           : 'character `' +
-            (code === codes.graveAccent ? '` ` `' : String.fromCharCode(code)) +
+            (code === codes.graveAccent
+              ? '` ` `'
+              : String.fromCodePoint(code)) +
             '` (' +
             serializeCharCode(code) +
             ')') +

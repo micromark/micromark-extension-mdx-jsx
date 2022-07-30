@@ -6,9 +6,18 @@
 
 /**
  * @typedef Options
- * @property {boolean} [addResult=false]
+ *   Configuration (optional).
  * @property {Acorn} [acorn]
+ *   Acorn parser to use.
  * @property {AcornOptions} [acornOptions]
+ *   Options to pass to acorn (default: `{ecmaVersion: 2020, sourceType:
+ *   'module'}`).
+ *   All fields can be set.
+ *   Positional info (`loc`, `range`) is set on ES nodes regardless of acorn
+ *   options.
+ * @property {boolean} [addResult=false]
+ *   Whether to add an `estree` field to the `mdxTextJsx` and `mdxFlowJsx`
+ *   tokens with the results from acorn.
  */
 
 import {codes} from 'micromark-util-symbol/codes.js'

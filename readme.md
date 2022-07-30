@@ -73,6 +73,8 @@ micromark to parse JSX (can be passed in `extensions`).
 
 ##### `options`
 
+Configuration (optional).
+
 ###### `options.acorn`
 
 Acorn parser to use ([`Acorn`][acorn], optional).
