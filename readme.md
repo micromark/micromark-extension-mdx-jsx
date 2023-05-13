@@ -8,7 +8,7 @@
 [![Backers][backers-badge]][collective]
 [![Chat][chat-badge]][chat]
 
-[micromark][] extension to support [MDX][mdxjs] expressions (`<Component />`).
+[micromark][] extension to support [MDX][mdxjs] JSX (`<Component />`).
 
 ## Contents
 
