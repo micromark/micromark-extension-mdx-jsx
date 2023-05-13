@@ -1,5 +1,6 @@
 /**
  * @typedef {import('micromark-util-types').Construct} Construct
+ * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
  * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
  * @typedef {import('micromark-factory-mdx-expression').Acorn} Acorn
  * @typedef {import('micromark-factory-mdx-expression').AcornOptions} AcornOptions
@@ -16,7 +17,10 @@ import {factoryTag} from './factory-tag.js'
 export function jsxText(acorn, acornOptions, addResult) {
   return {tokenize: tokenizeJsxText}
 
-  /** @type {Tokenizer} */
+  /**
+   * @this {TokenizeContext}
+   * @type {Tokenizer}
+   */
   function tokenizeJsxText(effects, ok, nok) {
     return factoryTag.call(
       this,

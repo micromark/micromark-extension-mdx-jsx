@@ -1,4 +1,5 @@
 /**
+ * @typedef {import('micromark-util-types').CompileContext} CompileContext
  * @typedef {import('micromark-util-types').HtmlExtension} HtmlExtension
  * @typedef {import('micromark-util-types').Handle} Handle
  */
@@ -17,12 +18,18 @@ const html = {
   exit: {mdxJsxTextTag: end, mdxJsxFlowTag: end}
 }
 
-/** @type {Handle} */
+/**
+ * @this {CompileContext}
+ * @type {Handle}
+ */
 function start() {
   this.buffer()
 }
 
-/** @type {Handle} */
+/**
+ * @this {CompileContext}
+ * @type {Handle}
+ */
 function end() {
   this.resume()
   this.setData('slurpOneLineEnding', true)

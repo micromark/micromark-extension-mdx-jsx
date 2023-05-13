@@ -101,15 +101,12 @@ export function factoryTag(
   let returnState
   /** @type {NonNullable<Code>|undefined} */
   let marker
-  /** @type {Point|undefined} */
-  let startPoint
 
   return start
 
   /** @type {State} */
   function start(code) {
     assert(code === codes.lessThan, 'expected `<`')
-    startPoint = self.now()
     effects.enter(tagType)
     effects.enter(tagMarkerType)
     effects.consume(code)
@@ -437,7 +434,6 @@ export function factoryTag(
 
     // Attribute expression.
     if (code === codes.leftCurlyBrace) {
-      assert(startPoint, 'expected `startPoint` to be defined')
       return factoryMdxExpression.call(
         self,
         effects,
@@ -450,8 +446,7 @@ export function factoryTag(
         addResult,
         true,
         false,
-        allowLazy,
-        startPoint.column
+        allowLazy
       )(code)
     }
 
@@ -646,7 +641,6 @@ export function factoryTag(
 
     // Start of an assignment expression.
     if (code === codes.leftCurlyBrace) {
-      assert(startPoint, 'expected `startPoint` to be defined')
       return factoryMdxExpression.call(
         self,
         effects,
@@ -659,8 +653,7 @@ export function factoryTag(
         addResult,
         false,
         false,
-        allowLazy,
-        startPoint.column
+        allowLazy
       )(code)
     }
 
@@ -845,7 +838,10 @@ export function factoryTag(
   }
 }
 
-/** @type {Tokenizer} */
+/**
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */
 function tokenizeLazyLineEnd(effects, ok, nok) {
   const self = this
 
