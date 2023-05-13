@@ -2,11 +2,10 @@
  * @typedef {import('mdast').Root} Root
  */
 
-import fs from 'node:fs'
-import path from 'node:path'
+import fs from 'node:fs/promises'
 import {zone} from 'mdast-zone'
 
-const syntax = fs.readFileSync(path.join('script', 'grammar.html'))
+const syntax = await fs.readFile(new URL('grammar.html', import.meta.url))
 
 export default function grammar() {
   /** @param {Root} tree */

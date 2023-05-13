@@ -1,7 +1,7 @@
 /**
  * @typedef {import('micromark-util-types').CompileContext} CompileContext
- * @typedef {import('micromark-util-types').HtmlExtension} HtmlExtension
  * @typedef {import('micromark-util-types').Handle} Handle
+ * @typedef {import('micromark-util-types').HtmlExtension} HtmlExtension
  */
 
 import test from 'tape'
