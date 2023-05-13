@@ -1,4 +1,6 @@
 /**
+ * @typedef {import('estree').Node} Node
+ * @typedef {import('estree').Program} Program
  * @typedef {import('micromark-util-types').CompileContext} CompileContext
  * @typedef {import('micromark-util-types').Handle} Handle
  * @typedef {import('micromark-util-types').HtmlExtension} HtmlExtension
@@ -8,6 +10,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import {Parser} from 'acorn'
 import acornJsx from 'acorn-jsx'
+import {visit} from 'estree-util-visit'
 import {micromark} from 'micromark'
 import {mdxJsx} from 'micromark-extension-mdx-jsx'
 
@@ -1102,3 +1105,169 @@ test('flow (essence)', function () {
     'should not support lazy flow (3)'
   )
 })
+
+test('should use correct positional info when tabs are used', function () {
+  const example = '<a {...`\n\t`}/>'
+  /** @type {Program | undefined} */
+  let program
+
+  const acornNode = /** @type {Node} */ (
+    acorn.parseExpressionAt(example, 0, {
+      ecmaVersion: 'latest',
+      locations: true,
+      ranges: true
+    })
+  )
+
+  micromark(example, {
+    extensions: [mdxJsx({acorn, addResult: true})],
+    htmlExtensions: [{enter: {mdxJsxFlowTagExpressionAttribute: expression}}]
+  })
+
+  assert(acornNode.type === 'JSXElement')
+  const acornAttribute = acornNode.openingElement.attributes[0]
+  assert(acornAttribute.type === 'JSXSpreadAttribute')
+  const acornArgument = acornAttribute.argument
+
+  assert(program)
+  removeOffsets(program)
+  const micromarkStatement = program.body[0]
+  assert(micromarkStatement.type === 'ExpressionStatement')
+  const micromarkExpression = micromarkStatement.expression
+  assert(micromarkExpression.type === 'ObjectExpression')
+  const micromarkProperty = micromarkExpression.properties[0]
+  assert(micromarkProperty.type === 'SpreadElement')
+  const micromarkArgument = micromarkProperty.argument
+
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(micromarkArgument)),
+    JSON.parse(JSON.stringify(acornArgument))
+  )
+
+  /**
+   * @this {CompileContext}
+   * @type {Handle}
+   */
+  function expression(token) {
+    assert('estree' in token)
+    // @ts-expect-error: fine.
+    program = token.estree
+  }
+})
+
+test('should use correct positional when there are virtual spaces due to a block quote', function () {
+  /** @type {Program | undefined} */
+  let program
+
+  micromark('> <a b={`\n>\t`}/>', {
+    extensions: [mdxJsx({acorn, addResult: true})],
+    htmlExtensions: [
+      {enter: {mdxJsxFlowTagAttributeValueExpression: expression}}
+    ]
+  })
+
+  assert(program)
+  removeOffsets(program)
+
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(program)),
+    JSON.parse(
+      JSON.stringify({
+        type: 'Program',
+        start: 8,
+        end: 13,
+        body: [
+          {
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'TemplateLiteral',
+              start: 8,
+              end: 13,
+              loc: {start: {line: 1, column: 8}, end: {line: 2, column: 3}},
+              expressions: [],
+              quasis: [
+                {
+                  type: 'TemplateElement',
+                  start: 9,
+                  end: 12,
+                  loc: {
+                    start: {line: 1, column: 9},
+                    end: {line: 2, column: 2}
+                  },
+                  value: {raw: '\n', cooked: '\n'},
+                  tail: true,
+                  range: [9, 12]
+                }
+              ],
+              range: [8, 13]
+            },
+            start: 8,
+            end: 13,
+            loc: {start: {line: 1, column: 8}, end: {line: 2, column: 3}},
+            range: [8, 13]
+          }
+        ],
+        sourceType: 'module',
+        comments: [],
+        loc: {start: {line: 1, column: 8}, end: {line: 2, column: 3}},
+        range: [8, 13]
+      })
+    )
+  )
+
+  /**
+   * @this {CompileContext}
+   * @type {Handle}
+   */
+  function expression(token) {
+    assert('estree' in token)
+    // @ts-expect-error: fine.
+    program = token.estree
+  }
+})
+
+test('should keep the correct number of spaces in a blockquote', function () {
+  /** @type {Program | undefined} */
+  let program
+
+  micromark('> <a b={`\n> alpha\n>  bravo\n>   charlie\n>    delta\n> `}/>', {
+    extensions: [mdxJsx({acorn, addResult: true})],
+    htmlExtensions: [
+      {enter: {mdxJsxFlowTagAttributeValueExpression: expression}}
+    ]
+  })
+
+  assert(program)
+  removeOffsets(program)
+  const statement = program.body[0]
+  assert(statement.type === 'ExpressionStatement')
+  assert(statement.expression.type === 'TemplateLiteral')
+  const quasi = statement.expression.quasis[0]
+  assert(quasi)
+  const value = quasi.value.cooked
+  assert.equal(value, '\nalpha\n bravo\n  charlie\n   delta\n')
+
+  /**
+   * @this {CompileContext}
+   * @type {Handle}
+   */
+  function expression(token) {
+    assert('estree' in token)
+    // @ts-expect-error: fine.
+    program = token.estree
+  }
+})
+
+/**
+ * @param {Node} node
+ * @returns {void}
+ */
+function removeOffsets(node) {
+  visit(node, (d) => {
+    assert(d.loc, 'expected `loc`')
+    // @ts-expect-error: we add offsets, as we have them.
+    delete d.loc.start.offset
+    // @ts-expect-error: we add offsets.
+    delete d.loc.end.offset
+  })
+}
