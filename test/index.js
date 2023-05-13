@@ -974,6 +974,15 @@ test('text (complete)', function () {
     '<p>1 &lt; 3</p>',
     'should allow `<` followed by markdown whitespace as text in markdown'
   )
+
+  assert.equal(
+    micromark('a <b \n c> d.', {
+      extensions: [mdxJsx()],
+      htmlExtensions: [html]
+    }),
+    '<p>a  d.</p>',
+    'should allow line endings in whitespace'
+  )
 })
 
 test('flow (agnostic)', function () {

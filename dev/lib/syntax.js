@@ -23,8 +23,13 @@ import {jsxText} from './jsx-text.js'
 import {jsxFlow} from './jsx-flow.js'
 
 /**
+ * Create an extension for `micromark` to enable MDX JSX syntax.
+ *
  * @param {Options | null | undefined} [options]
+ *   Configuration (optional).
  * @returns {Extension}
+ *   Extension for `micromark` that can be passed in `extensions` to enable MDX
+ *   JSX syntax.
  */
 export function mdxJsx(options) {
   const settings = options || {}

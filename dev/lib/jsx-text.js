@@ -9,15 +9,28 @@
 import {factoryTag} from './factory-tag.js'
 
 /**
+ * Parse JSX (text).
+ *
  * @param {Acorn | undefined} acorn
+ *   Acorn parser to use (optional).
  * @param {AcornOptions | undefined} acornOptions
+ *   Configuration for acorn.
  * @param {boolean | undefined} addResult
+ *   Whether to add `estree` fields to tokens with results from acorn.
  * @returns {Construct}
+ *   Construct.
  */
 export function jsxText(acorn, acornOptions, addResult) {
   return {tokenize: tokenizeJsxText}
 
   /**
+   * MDX JSX (text).
+   *
+   * ```markdown
+   * > | a <b />.
+   *       ^^^^^
+   * ```
+   *
    * @this {TokenizeContext}
    * @type {Tokenizer}
    */

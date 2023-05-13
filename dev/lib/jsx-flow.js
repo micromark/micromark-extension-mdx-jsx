@@ -7,7 +7,7 @@
  * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
  */
 
-import {markdownLineEnding} from 'micromark-util-character'
+import {markdownLineEnding, markdownSpace} from 'micromark-util-character'
 import {factorySpace} from 'micromark-factory-space'
 import {codes} from 'micromark-util-symbol/codes.js'
 import {types} from 'micromark-util-symbol/types.js'
@@ -15,15 +15,28 @@ import {ok as assert} from 'uvu/assert'
 import {factoryTag} from './factory-tag.js'
 
 /**
+ * Parse JSX (flow).
+ *
  * @param {Acorn | undefined} acorn
+ *   Acorn parser to use (optional).
  * @param {AcornOptions | undefined} acornOptions
+ *   Configuration for acorn.
  * @param {boolean | undefined} addResult
+ *   Whether to add `estree` fields to tokens with results from acorn.
  * @returns {Construct}
+ *   Construct.
  */
 export function jsxFlow(acorn, acornOptions, addResult) {
   return {tokenize: tokenizeJsxFlow, concrete: true}
 
   /**
+   * MDX JSX (flow).
+   *
+   * ```markdown
+   * > | <A />
+   *     ^^^^^
+   * ```
+   *
    * @this {TokenizeContext}
    * @type {Tokenizer}
    */
@@ -33,14 +46,37 @@ export function jsxFlow(acorn, acornOptions, addResult) {
     return start
 
     /**
+     * Start of MDX: JSX (flow).
+     *
+     * ```markdown
+     * > | <A />
+     *     ^
+     * ```
+     *
      * @type {State}
      */
     function start(code) {
+      // To do: in `markdown-rs`, constructs need to parse the indent themselves.
+      // This should also be introduced in `micromark-js`.
       assert(code === codes.lessThan, 'expected `<`')
+      return before(code)
+    }
+
+    /**
+     * After optional whitespace, before of MDX JSX (flow).
+     *
+     * ```markdown
+     * > | <A />
+     *     ^
+     * ```
+     *
+     * @type {State}
+     */
+    function before(code) {
       return factoryTag.call(
         self,
         effects,
-        factorySpace(effects, after, types.whitespace),
+        after,
         nok,
         acorn,
         acornOptions,
@@ -75,9 +111,32 @@ export function jsxFlow(acorn, acornOptions, addResult) {
     }
 
     /**
+     * After an MDX JSX (flow) tag.
+     *
+     * ```markdown
+     * > | <A>
+     *        ^
+     * ```
+     *
      * @type {State}
      */
     function after(code) {
+      return markdownSpace(code)
+        ? factorySpace(effects, end, types.whitespace)(code)
+        : end(code)
+    }
+
+    /**
+     * After an MDX JSX (flow) tag, after optional whitespace.
+     *
+     * ```markdown
+     * > | <A> <B>
+     *         ^
+     * ```
+     *
+     * @type {State}
+     */
+    function end(code) {
       // Another tag.
       return code === codes.lessThan
         ? start(code)

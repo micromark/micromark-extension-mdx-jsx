@@ -5,12 +5,10 @@
  * @typedef {import('micromark-util-types').Effects} Effects
  * @typedef {import('micromark-util-types').State} State
  * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
- * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
  */
 
 import {start as idStart, cont as idCont} from 'estree-util-is-identifier-name'
 import {factoryMdxExpression} from 'micromark-factory-mdx-expression'
-import {factorySpace} from 'micromark-factory-space'
 import {
   markdownLineEnding,
   markdownLineEndingOrSpace,
@@ -22,8 +20,6 @@ import {constants} from 'micromark-util-symbol/constants.js'
 import {types} from 'micromark-util-symbol/types.js'
 import {ok as assert} from 'uvu/assert'
 import {VFileMessage} from 'vfile-message'
-
-const lazyLineEnd = {tokenize: tokenizeLazyLineEnd, partial: true}
 
 /**
  * @this {TokenizeContext}
@@ -104,6 +100,13 @@ export function factoryTag(
   return start
 
   /**
+   * Start of MDX: JSX.
+   *
+   * ```markdown
+   * > | a <B /> c
+   *       ^
+   * ```
+   *
    * @type {State}
    */
   function start(code) {
@@ -112,36 +115,53 @@ export function factoryTag(
     effects.enter(tagMarkerType)
     effects.consume(code)
     effects.exit(tagMarkerType)
-    return afterStart
+    return startAfter
   }
 
   /**
+   * After `<`.
+   *
+   * ```markdown
+   * > | a <B /> c
+   *        ^
+   * ```
+   *
    * @type {State}
    */
-  function afterStart(code) {
+  function startAfter(code) {
     // Deviate from JSX, which allows arbitrary whitespace.
     // See: <https://github.com/micromark/micromark-extension-mdx-jsx/issues/7>.
-    if (markdownLineEnding(code) || markdownSpace(code)) {
+    if (markdownLineEndingOrSpace(code)) {
       return nok(code)
     }
 
     // Any other ES whitespace does not get this treatment.
-    returnState = beforeName
-    return optionalEsWhitespace(code)
+    returnState = nameBefore
+    return esWhitespaceStart(code)
   }
 
-  // Right after `<`, before an optional name.
   /**
+   * Before name, self slash, or end of tag for fragments.
+   *
+   * ```markdown
+   * > | a <B> c
+   *        ^
+   * > | a </B> c
+   *        ^
+   * > | a <> b
+   *        ^
+   * ```
+   *
    * @type {State}
    */
-  function beforeName(code) {
+  function nameBefore(code) {
     // Closing tag.
     if (code === codes.slash) {
       effects.enter(tagClosingMarkerType)
       effects.consume(code)
       effects.exit(tagClosingMarkerType)
-      returnState = beforeClosingTagName
-      return optionalEsWhitespace
+      returnState = closingTagNameBefore
+      return esWhitespaceStart
     }
 
     // Fragment opening tag.
@@ -167,11 +187,19 @@ export function factoryTag(
     )
   }
 
-  // At the start of a closing tag, right after `</`.
   /**
+   * Before name of closing tag or end of closing fragment tag.
+   *
+   * ```markdown
+   * > | a </> b
+   *         ^
+   * > | a </B> c
+   *         ^
+   * ```
+   *
    * @type {State}
    */
-  function beforeClosingTagName(code) {
+  function closingTagNameBefore(code) {
     // Fragment closing tag.
     if (code === codes.greaterThan) {
       return tagEnd(code)
@@ -195,8 +223,14 @@ export function factoryTag(
     )
   }
 
-  // Inside the primary name.
   /**
+   * In primary name.
+   *
+   * ```markdown
+   * > | a <Bc> d
+   *         ^
+   * ```
+   *
    * @type {State}
    */
   function primaryName(code) {
@@ -217,8 +251,8 @@ export function factoryTag(
       unicodeWhitespace(code)
     ) {
       effects.exit(tagNamePrimaryType)
-      returnState = afterPrimaryName
-      return optionalEsWhitespace(code)
+      returnState = primaryNameAfter
+      return esWhitespaceStart(code)
     }
 
     crash(
@@ -231,18 +265,26 @@ export function factoryTag(
     )
   }
 
-  // After a name.
   /**
+   * After primary name.
+   *
+   * ```markdown
+   * > | a <b.c> d
+   *         ^
+   * > | a <b:c> d
+   *         ^
+   * ```
+   *
    * @type {State}
    */
-  function afterPrimaryName(code) {
+  function primaryNameAfter(code) {
     // Start of a member name.
     if (code === codes.dot) {
       effects.enter(tagNameMemberMarkerType)
       effects.consume(code)
       effects.exit(tagNameMemberMarkerType)
-      returnState = beforeMemberName
-      return optionalEsWhitespace
+      returnState = memberNameBefore
+      return esWhitespaceStart
     }
 
     // Start of a local name.
@@ -250,8 +292,8 @@ export function factoryTag(
       effects.enter(tagNamePrefixMarkerType)
       effects.consume(code)
       effects.exit(tagNamePrefixMarkerType)
-      returnState = beforeLocalName
-      return optionalEsWhitespace
+      returnState = localNameBefore
+      return esWhitespaceStart
     }
 
     // End of name.
@@ -262,7 +304,7 @@ export function factoryTag(
       (code !== codes.eof && idStart(code))
     ) {
       effects.exit(tagNameType)
-      return beforeAttribute(code)
+      return attributeBefore(code)
     }
 
     crash(
@@ -272,11 +314,17 @@ export function factoryTag(
     )
   }
 
-  // We’ve seen a `.` and are expecting a member name.
   /**
+   * Before member name.
+   *
+   * ```markdown
+   * > | a <b.c> d
+   *          ^
+   * ```
+   *
    * @type {State}
    */
-  function beforeMemberName(code) {
+  function memberNameBefore(code) {
     // Start of a member name.
     if (code !== codes.eof && idStart(code)) {
       effects.enter(tagNameMemberType)
@@ -291,18 +339,25 @@ export function factoryTag(
     )
   }
 
-  // Inside the member name.
   /**
+   * In member name.
+   *
+   * ```markdown
+   * > | a <b.cd> e
+   *           ^
+   * ```
+   *
    * @type {State}
    */
   function memberName(code) {
-    // Continuation of member name: stay in state
+    // Continuation of name: remain.
     if (code === codes.dash || (code !== codes.eof && idCont(code))) {
       effects.consume(code)
       return memberName
     }
 
-    // End of member name (note that namespaces and members can’t be combined).
+    // End of name.
+    // Note: no `:` allowed here.
     if (
       code === codes.dot ||
       code === codes.slash ||
@@ -312,8 +367,8 @@ export function factoryTag(
       unicodeWhitespace(code)
     ) {
       effects.exit(tagNameMemberType)
-      returnState = afterMemberName
-      return optionalEsWhitespace(code)
+      returnState = memberNameAfter
+      return esWhitespaceStart(code)
     }
 
     crash(
@@ -326,19 +381,26 @@ export function factoryTag(
     )
   }
 
-  // After a member name: this is the same as `afterPrimaryName` but we don’t
-  // expect colons.
   /**
+   * After member name.
+   *
+   * ```markdown
+   * > | a <b.c> d
+   *           ^
+   * > | a <b.c.d> e
+   *           ^
+   * ```
+   *
    * @type {State}
    */
-  function afterMemberName(code) {
+  function memberNameAfter(code) {
     // Start another member name.
     if (code === codes.dot) {
       effects.enter(tagNameMemberMarkerType)
       effects.consume(code)
       effects.exit(tagNameMemberMarkerType)
-      returnState = beforeMemberName
-      return optionalEsWhitespace
+      returnState = memberNameBefore
+      return esWhitespaceStart
     }
 
     // End of name.
@@ -349,7 +411,7 @@ export function factoryTag(
       (code !== codes.eof && idStart(code))
     ) {
       effects.exit(tagNameType)
-      return beforeAttribute(code)
+      return attributeBefore(code)
     }
 
     crash(
@@ -359,11 +421,17 @@ export function factoryTag(
     )
   }
 
-  // We’ve seen a `:`, and are expecting a local name.
   /**
+   * Local member name.
+   *
+   * ```markdown
+   * > | a <b:c> d
+   *          ^
+   * ```
+   *
    * @type {State}
    */
-  function beforeLocalName(code) {
+  function localNameBefore(code) {
     // Start of a local name.
     if (code !== codes.eof && idStart(code)) {
       effects.enter(tagNameLocalType)
@@ -384,12 +452,18 @@ export function factoryTag(
     )
   }
 
-  // Inside the local name.
   /**
+   * In local name.
+   *
+   * ```markdown
+   * > | a <b:cd> e
+   *           ^
+   * ```
+   *
    * @type {State}
    */
   function localName(code) {
-    // Continuation of local name: stay in state
+    // Continuation of name: remain.
     if (code === codes.dash || (code !== codes.eof && idCont(code))) {
       effects.consume(code)
       return localName
@@ -404,8 +478,8 @@ export function factoryTag(
       unicodeWhitespace(code)
     ) {
       effects.exit(tagNameLocalType)
-      returnState = afterLocalName
-      return optionalEsWhitespace(code)
+      returnState = localNameAfter
+      return esWhitespaceStart(code)
     }
 
     crash(
@@ -415,12 +489,22 @@ export function factoryTag(
     )
   }
 
-  // After a local name: this is the same as `afterPrimaryName` but we don’t
-  // expect colons or periods.
   /**
+   * After local name.
+   *
+   * This is like as `primary_name_after`, but we don’t expect colons or
+   * periods.
+   *
+   * ```markdown
+   * > | a <b.c> d
+   *           ^
+   * > | a <b.c.d> e
+   *           ^
+   * ```
+   *
    * @type {State}
    */
-  function afterLocalName(code) {
+  function localNameAfter(code) {
     // End of name.
     if (
       code === codes.slash ||
@@ -429,7 +513,7 @@ export function factoryTag(
       (code !== codes.eof && idStart(code))
     ) {
       effects.exit(tagNameType)
-      return beforeAttribute(code)
+      return attributeBefore(code)
     }
 
     crash(
@@ -440,16 +524,29 @@ export function factoryTag(
   }
 
   /**
+   * Before attribute.
+   *
+   * ```markdown
+   * > | a <b /> c
+   *          ^
+   * > | a <b > c
+   *          ^
+   * > | a <b {...c}> d
+   *          ^
+   * > | a <b c> d
+   *          ^
+   * ```
+   *
    * @type {State}
    */
-  function beforeAttribute(code) {
-    // Mark as self-closing.
+  function attributeBefore(code) {
+    // Self-closing.
     if (code === codes.slash) {
       effects.enter(tagSelfClosingMarker)
       effects.consume(code)
       effects.exit(tagSelfClosingMarker)
       returnState = selfClosing
-      return optionalEsWhitespace
+      return esWhitespaceStart
     }
 
     // End of tag.
@@ -462,7 +559,7 @@ export function factoryTag(
       return factoryMdxExpression.call(
         self,
         effects,
-        afterAttributeExpression,
+        attributeExpressionAfter,
         tagExpressionAttributeType,
         tagExpressionAttributeMarkerType,
         tagExpressionAttributeValueType,
@@ -491,21 +588,37 @@ export function factoryTag(
     )
   }
 
-  // At the start of an attribute expression.
   /**
+   * After attribute expression.
+   *
+   * ```markdown
+   * > | a <b {c} d/> e
+   *             ^
+   * ```
+   *
    * @type {State}
    */
-  function afterAttributeExpression(code) {
-    returnState = beforeAttribute
-    return optionalEsWhitespace(code)
+  function attributeExpressionAfter(code) {
+    returnState = attributeBefore
+    return esWhitespaceStart(code)
   }
 
-  // In the attribute name.
   /**
+   * In primary attribute name.
+   *
+   * ```markdown
+   * > | a <b cd/> e
+   *           ^
+   * > | a <b c:d> e
+   *           ^
+   * > | a <b c=d> e
+   *           ^
+   * ```
+   *
    * @type {State}
    */
   function attributePrimaryName(code) {
-    // Continuation of the attribute name.
+    // Continuation of name: remain.
     if (code === codes.dash || (code !== codes.eof && idCont(code))) {
       effects.consume(code)
       return attributePrimaryName
@@ -522,8 +635,8 @@ export function factoryTag(
       unicodeWhitespace(code)
     ) {
       effects.exit(tagAttributeNamePrimaryType)
-      returnState = afterAttributePrimaryName
-      return optionalEsWhitespace(code)
+      returnState = attributePrimaryNameAfter
+      return esWhitespaceStart(code)
     }
 
     crash(
@@ -533,28 +646,38 @@ export function factoryTag(
     )
   }
 
-  // After an attribute name, probably finding an equals.
   /**
+   * After primary attribute name.
+   *
+   * ```markdown
+   * > | a <b c/> d
+   *           ^
+   * > | a <b c:d> e
+   *           ^
+   * > | a <b c=d> e
+   *           ^
+   * ```
+   *
    * @type {State}
    */
-  function afterAttributePrimaryName(code) {
+  function attributePrimaryNameAfter(code) {
     // Start of a local name.
     if (code === codes.colon) {
       effects.enter(tagAttributeNamePrefixMarkerType)
       effects.consume(code)
       effects.exit(tagAttributeNamePrefixMarkerType)
-      returnState = beforeAttributeLocalName
-      return optionalEsWhitespace
+      returnState = attributeLocalNameBefore
+      return esWhitespaceStart
     }
 
-    // Start of an attribute value.
+    // Initializer: start of an attribute value.
     if (code === codes.equalsTo) {
       effects.exit(tagAttributeNameType)
       effects.enter(tagAttributeInitializerMarkerType)
       effects.consume(code)
       effects.exit(tagAttributeInitializerMarkerType)
-      returnState = beforeAttributeValue
-      return optionalEsWhitespace
+      returnState = attributeValueBefore
+      return esWhitespaceStart
     }
 
     // End of tag / new attribute.
@@ -568,8 +691,8 @@ export function factoryTag(
     ) {
       effects.exit(tagAttributeNameType)
       effects.exit(tagAttributeType)
-      returnState = beforeAttribute
-      return optionalEsWhitespace(code)
+      returnState = attributeBefore
+      return esWhitespaceStart(code)
     }
 
     crash(
@@ -579,11 +702,17 @@ export function factoryTag(
     )
   }
 
-  // We’ve seen a `:`, and are expecting a local name.
   /**
+   * Before local attribute name.
+   *
+   * ```markdown
+   * > | a <b c:d/> e
+   *            ^
+   * ```
+   *
    * @type {State}
    */
-  function beforeAttributeLocalName(code) {
+  function attributeLocalNameBefore(code) {
     // Start of a local name.
     if (code !== codes.eof && idStart(code)) {
       effects.enter(tagAttributeNameLocalType)
@@ -598,18 +727,26 @@ export function factoryTag(
     )
   }
 
-  // In the local attribute name.
   /**
+   * In local attribute name.
+   *
+   * ```markdown
+   * > | a <b c:de/> f
+   *             ^
+   * > | a <b c:d=e/> f
+   *             ^
+   * ```
+   *
    * @type {State}
    */
   function attributeLocalName(code) {
-    // Continuation of the local attribute name.
+    // Continuation of name: remain.
     if (code === codes.dash || (code !== codes.eof && idCont(code))) {
       effects.consume(code)
       return attributeLocalName
     }
 
-    // End of tag / attribute name.
+    // End of local name (note that we don’t expect another colon).
     if (
       code === codes.slash ||
       code === codes.equalsTo ||
@@ -620,8 +757,8 @@ export function factoryTag(
     ) {
       effects.exit(tagAttributeNameLocalType)
       effects.exit(tagAttributeNameType)
-      returnState = afterAttributeLocalName
-      return optionalEsWhitespace(code)
+      returnState = attributeLocalNameAfter
+      return esWhitespaceStart(code)
     }
 
     crash(
@@ -631,21 +768,29 @@ export function factoryTag(
     )
   }
 
-  // After a local attribute name, expecting an equals.
   /**
+   * After local attribute name.
+   *
+   * ```markdown
+   * > | a <b c:d/> f
+   *             ^
+   * > | a <b c:d=e/> f
+   *             ^
+   * ```
+   *
    * @type {State}
    */
-  function afterAttributeLocalName(code) {
+  function attributeLocalNameAfter(code) {
     // Start of an attribute value.
     if (code === codes.equalsTo) {
       effects.enter(tagAttributeInitializerMarkerType)
       effects.consume(code)
       effects.exit(tagAttributeInitializerMarkerType)
-      returnState = beforeAttributeValue
-      return optionalEsWhitespace
+      returnState = attributeValueBefore
+      return esWhitespaceStart
     }
 
-    // End of tag / new attribute.
+    // End of name.
     if (
       code === codes.slash ||
       code === codes.greaterThan ||
@@ -653,7 +798,7 @@ export function factoryTag(
       (code !== codes.eof && idStart(code))
     ) {
       effects.exit(tagAttributeType)
-      return beforeAttribute(code)
+      return attributeBefore(code)
     }
 
     crash(
@@ -663,11 +808,19 @@ export function factoryTag(
     )
   }
 
-  // After an attribute value initializer, expecting quotes and such.
   /**
+   * After `=`, before value.
+   *
+   * ```markdown
+   * > | a <b c="d"/> e
+   *            ^
+   * > | a <b c={d}/> e
+   *            ^
+   * ```
+   *
    * @type {State}
    */
-  function beforeAttributeValue(code) {
+  function attributeValueBefore(code) {
     // Start of double- or single quoted value.
     if (code === codes.quotationMark || code === codes.apostrophe) {
       effects.enter(tagAttributeValueLiteralType)
@@ -678,12 +831,12 @@ export function factoryTag(
       return attributeValueQuotedStart
     }
 
-    // Start of an assignment expression.
+    // Attribute value expression.
     if (code === codes.leftCurlyBrace) {
       return factoryMdxExpression.call(
         self,
         effects,
-        afterAttributeValueExpression,
+        attributeValueExpressionAfter,
         tagAttributeValueExpressionType,
         tagAttributeValueExpressionMarkerType,
         tagAttributeValueExpressionValueType,
@@ -707,16 +860,29 @@ export function factoryTag(
   }
 
   /**
+   * After attribute value expression.
+   *
+   * ```markdown
+   * > | a <b c={d} e/> f
+   *               ^
+   * ```
+   *
    * @type {State}
    */
-  function afterAttributeValueExpression(code) {
+  function attributeValueExpressionAfter(code) {
     effects.exit(tagAttributeType)
-    returnState = beforeAttribute
-    return optionalEsWhitespace(code)
+    returnState = attributeBefore
+    return esWhitespaceStart(code)
   }
 
-  // At the start of a quoted attribute value.
   /**
+   * Before quoted literal attribute value.
+   *
+   * ```markdown
+   * > | a <b c="d"/> e
+   *            ^
+   * ```
+   *
    * @type {State}
    */
   function attributeValueQuotedStart(code) {
@@ -737,21 +903,27 @@ export function factoryTag(
       effects.exit(tagAttributeValueLiteralType)
       effects.exit(tagAttributeType)
       marker = undefined
-      returnState = beforeAttribute
-      return optionalEsWhitespace
+      returnState = attributeBefore
+      return esWhitespaceStart
     }
 
     if (markdownLineEnding(code)) {
       returnState = attributeValueQuotedStart
-      return optionalEsWhitespace(code)
+      return esWhitespaceStart(code)
     }
 
     effects.enter(tagAttributeValueLiteralValueType)
     return attributeValueQuoted(code)
   }
 
-  // In a quoted attribute value.
   /**
+   * In quoted literal attribute value.
+   *
+   * ```markdown
+   * > | a <b c="d"/> e
+   *             ^
+   * ```
+   *
    * @type {State}
    */
   function attributeValueQuoted(code) {
@@ -760,17 +932,21 @@ export function factoryTag(
       return attributeValueQuotedStart(code)
     }
 
-    // Continuation.
     effects.consume(code)
     return attributeValueQuoted
   }
 
-  // Right after the slash on a tag, e.g., `<asd /`.
   /**
+   * After self-closing slash.
+   *
+   * ```markdown
+   * > | a <b/> c
+   *          ^
+   * ```
+   *
    * @type {State}
    */
   function selfClosing(code) {
-    // End of tag.
     if (code === codes.greaterThan) {
       return tagEnd(code)
     }
@@ -785,8 +961,14 @@ export function factoryTag(
     )
   }
 
-  // At a `>`.
   /**
+   * At final `>`.
+   *
+   * ```markdown
+   * > | a <b> c
+   *         ^
+   * ```
+   *
    * @type {State}
    */
   function tagEnd(code) {
@@ -798,74 +980,83 @@ export function factoryTag(
     return ok
   }
 
-  // Optionally start whitespace.
   /**
+   * Before optional ECMAScript whitespace.
+   *
+   * ```markdown
+   * > | a <a b> c
+   *         ^
+   * ```
+   *
    * @type {State}
    */
-  function optionalEsWhitespace(code) {
+  function esWhitespaceStart(code) {
     if (markdownLineEnding(code)) {
-      if (allowLazy) {
-        effects.enter(types.lineEnding)
-        effects.consume(code)
-        effects.exit(types.lineEnding)
-        return factorySpace(
-          effects,
-          optionalEsWhitespace,
-          types.linePrefix,
-          constants.tabSize
-        )
-      }
-
-      return effects.attempt(
-        lazyLineEnd,
-        factorySpace(
-          effects,
-          optionalEsWhitespace,
-          types.linePrefix,
-          constants.tabSize
-        ),
-        crashEol
-      )(code)
+      effects.enter(types.lineEnding)
+      effects.consume(code)
+      effects.exit(types.lineEnding)
+      return esWhitespaceEolAfter
     }
 
     if (markdownSpace(code) || unicodeWhitespace(code)) {
       effects.enter('esWhitespace')
-      return optionalEsWhitespaceContinue(code)
+      return esWhitespaceInside(code)
     }
 
     return returnState(code)
   }
 
-  // Continue optional whitespace.
   /**
+   * In ECMAScript whitespace.
+   *
+   * ```markdown
+   * > | a <a  b> c
+   *          ^
+   * ```
+   *
    * @type {State}
    */
-  function optionalEsWhitespaceContinue(code) {
-    if (
-      markdownLineEnding(code) ||
-      !(markdownSpace(code) || unicodeWhitespace(code))
-    ) {
+  function esWhitespaceInside(code) {
+    if (markdownLineEnding(code)) {
       effects.exit('esWhitespace')
-      return optionalEsWhitespace(code)
+      return esWhitespaceStart(code)
     }
 
-    effects.consume(code)
-    return optionalEsWhitespaceContinue
+    if (markdownSpace(code) || unicodeWhitespace(code)) {
+      effects.consume(code)
+      return esWhitespaceInside
+    }
+
+    effects.exit('esWhitespace')
+    return returnState(code)
   }
 
   /**
+   * After eol in whitespace.
+   *
+   * ```markdown
+   * > | a <a\nb> c
+   *          ^
+   * ```
+   *
    * @type {State}
    */
-  function crashEol() {
-    throw new VFileMessage(
-      'Unexpected lazy line in container, expected line to be prefixed with `>` when in a block quote, whitespace when in a list, etc',
-      self.now(),
-      'micromark-extension-mdx-jsx:unexpected-eof'
-    )
+  function esWhitespaceEolAfter(code) {
+    // Lazy continuation in a flow tag is a syntax error.
+    if (!allowLazy && self.parser.lazy[self.now().line]) {
+      throw new VFileMessage(
+        'Unexpected lazy line in container, expected line to be prefixed with `>` when in a block quote, whitespace when in a list, etc',
+        self.now(),
+        'micromark-extension-mdx-jsx:unexpected-eof'
+      )
+    }
+
+    return esWhitespaceStart(code)
   }
 
-  // Crash at a nonconforming character.
   /**
+   * Crash at a nonconforming character.
+   *
    * @param {Code} code
    * @param {string} at
    * @param {string} expect
@@ -890,34 +1081,6 @@ export function factoryTag(
       'micromark-extension-mdx-jsx:unexpected-' +
         (code === codes.eof ? 'eof' : 'character')
     )
-  }
-}
-
-/**
- * @this {TokenizeContext}
- * @type {Tokenizer}
- */
-function tokenizeLazyLineEnd(effects, ok, nok) {
-  const self = this
-
-  return start
-
-  /**
-   * @type {State}
-   */
-  function start(code) {
-    assert(markdownLineEnding(code), 'expected eol')
-    effects.enter(types.lineEnding)
-    effects.consume(code)
-    effects.exit(types.lineEnding)
-    return lineStart
-  }
-
-  /**
-   * @type {State}
-   */
-  function lineStart(code) {
-    return self.parser.lazy[self.now().line] ? nok(code) : ok(code)
   }
 }
 
