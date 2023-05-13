@@ -1,23 +1,23 @@
 /**
- * @typedef {import('micromark-util-types').Construct} Construct
- * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
- * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
- * @typedef {import('micromark-util-types').State} State
  * @typedef {import('micromark-factory-mdx-expression').Acorn} Acorn
  * @typedef {import('micromark-factory-mdx-expression').AcornOptions} AcornOptions
+ * @typedef {import('micromark-util-types').Construct} Construct
+ * @typedef {import('micromark-util-types').State} State
+ * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
+ * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
  */
 
-import {ok as assert} from 'uvu/assert'
-import {factorySpace} from 'micromark-factory-space'
 import {markdownLineEnding} from 'micromark-util-character'
+import {factorySpace} from 'micromark-factory-space'
 import {codes} from 'micromark-util-symbol/codes.js'
 import {types} from 'micromark-util-symbol/types.js'
+import {ok as assert} from 'uvu/assert'
 import {factoryTag} from './factory-tag.js'
 
 /**
- * @param {Acorn|undefined} acorn
- * @param {AcornOptions|undefined} acornOptions
- * @param {boolean|undefined} addResult
+ * @param {Acorn | undefined} acorn
+ * @param {AcornOptions | undefined} acornOptions
+ * @param {boolean | undefined} addResult
  * @returns {Construct}
  */
 export function jsxFlow(acorn, acornOptions, addResult) {
@@ -32,7 +32,9 @@ export function jsxFlow(acorn, acornOptions, addResult) {
 
     return start
 
-    /** @type {State} */
+    /**
+     * @type {State}
+     */
     function start(code) {
       assert(code === codes.lessThan, 'expected `<`')
       return factoryTag.call(
@@ -72,7 +74,9 @@ export function jsxFlow(acorn, acornOptions, addResult) {
       )(code)
     }
 
-    /** @type {State} */
+    /**
+     * @type {State}
+     */
     function after(code) {
       // Another tag.
       return code === codes.lessThan

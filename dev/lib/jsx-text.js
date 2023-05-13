@@ -1,17 +1,17 @@
 /**
+ * @typedef {import('micromark-factory-mdx-expression').Acorn} Acorn
+ * @typedef {import('micromark-factory-mdx-expression').AcornOptions} AcornOptions
  * @typedef {import('micromark-util-types').Construct} Construct
  * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
  * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
- * @typedef {import('micromark-factory-mdx-expression').Acorn} Acorn
- * @typedef {import('micromark-factory-mdx-expression').AcornOptions} AcornOptions
  */
 
 import {factoryTag} from './factory-tag.js'
 
 /**
- * @param {Acorn|undefined} acorn
- * @param {AcornOptions|undefined} acornOptions
- * @param {boolean|undefined} addResult
+ * @param {Acorn | undefined} acorn
+ * @param {AcornOptions | undefined} acornOptions
+ * @param {boolean | undefined} addResult
  * @returns {Construct}
  */
 export function jsxText(acorn, acornOptions, addResult) {

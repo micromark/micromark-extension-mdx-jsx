@@ -1,15 +1,13 @@
 /**
- * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
- * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
- * @typedef {import('micromark-util-types').Effects} Effects
- * @typedef {import('micromark-util-types').State} State
- * @typedef {import('micromark-util-types').Code} Code
- * @typedef {import('micromark-util-types').Point} Point
  * @typedef {import('micromark-factory-mdx-expression').Acorn} Acorn
  * @typedef {import('micromark-factory-mdx-expression').AcornOptions} AcornOptions
+ * @typedef {import('micromark-util-types').Code} Code
+ * @typedef {import('micromark-util-types').Effects} Effects
+ * @typedef {import('micromark-util-types').State} State
+ * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
+ * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
  */
 
-import {ok as assert} from 'uvu/assert'
 import {start as idStart, cont as idCont} from 'estree-util-is-identifier-name'
 import {factoryMdxExpression} from 'micromark-factory-mdx-expression'
 import {factorySpace} from 'micromark-factory-space'
@@ -22,6 +20,7 @@ import {
 import {codes} from 'micromark-util-symbol/codes.js'
 import {constants} from 'micromark-util-symbol/constants.js'
 import {types} from 'micromark-util-symbol/types.js'
+import {ok as assert} from 'uvu/assert'
 import {VFileMessage} from 'vfile-message'
 
 const lazyLineEnd = {tokenize: tokenizeLazyLineEnd, partial: true}
@@ -31,10 +30,10 @@ const lazyLineEnd = {tokenize: tokenizeLazyLineEnd, partial: true}
  * @param {Effects} effects
  * @param {State} ok
  * @param {State} nok
- * @param {Acorn|undefined} acorn
- * @param {AcornOptions|undefined} acornOptions
- * @param {boolean|undefined} addResult
- * @param {boolean|undefined} allowLazy
+ * @param {Acorn | undefined} acorn
+ * @param {AcornOptions | undefined} acornOptions
+ * @param {boolean | undefined} addResult
+ * @param {boolean | undefined} allowLazy
  * @param {string} tagType
  * @param {string} tagMarkerType
  * @param {string} tagClosingMarkerType
@@ -99,12 +98,14 @@ export function factoryTag(
   const self = this
   /** @type {State} */
   let returnState
-  /** @type {NonNullable<Code>|undefined} */
+  /** @type {NonNullable<Code> | undefined} */
   let marker
 
   return start
 
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function start(code) {
     assert(code === codes.lessThan, 'expected `<`')
     effects.enter(tagType)
@@ -114,7 +115,9 @@ export function factoryTag(
     return afterStart
   }
 
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function afterStart(code) {
     // Deviate from JSX, which allows arbitrary whitespace.
     // See: <https://github.com/micromark/micromark-extension-mdx-jsx/issues/7>.
@@ -128,7 +131,9 @@ export function factoryTag(
   }
 
   // Right after `<`, before an optional name.
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function beforeName(code) {
     // Closing tag.
     if (code === codes.slash) {
@@ -163,7 +168,9 @@ export function factoryTag(
   }
 
   // At the start of a closing tag, right after `</`.
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function beforeClosingTagName(code) {
     // Fragment closing tag.
     if (code === codes.greaterThan) {
@@ -189,7 +196,9 @@ export function factoryTag(
   }
 
   // Inside the primary name.
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function primaryName(code) {
     // Continuation of name: remain.
     if (code === codes.dash || (code !== codes.eof && idCont(code))) {
@@ -223,7 +232,9 @@ export function factoryTag(
   }
 
   // After a name.
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function afterPrimaryName(code) {
     // Start of a member name.
     if (code === codes.dot) {
@@ -262,7 +273,9 @@ export function factoryTag(
   }
 
   // We’ve seen a `.` and are expecting a member name.
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function beforeMemberName(code) {
     // Start of a member name.
     if (code !== codes.eof && idStart(code)) {
@@ -279,7 +292,9 @@ export function factoryTag(
   }
 
   // Inside the member name.
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function memberName(code) {
     // Continuation of member name: stay in state
     if (code === codes.dash || (code !== codes.eof && idCont(code))) {
@@ -313,7 +328,9 @@ export function factoryTag(
 
   // After a member name: this is the same as `afterPrimaryName` but we don’t
   // expect colons.
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function afterMemberName(code) {
     // Start another member name.
     if (code === codes.dot) {
@@ -343,7 +360,9 @@ export function factoryTag(
   }
 
   // We’ve seen a `:`, and are expecting a local name.
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function beforeLocalName(code) {
     // Start of a local name.
     if (code !== codes.eof && idStart(code)) {
@@ -366,7 +385,9 @@ export function factoryTag(
   }
 
   // Inside the local name.
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function localName(code) {
     // Continuation of local name: stay in state
     if (code === codes.dash || (code !== codes.eof && idCont(code))) {
@@ -396,7 +417,9 @@ export function factoryTag(
 
   // After a local name: this is the same as `afterPrimaryName` but we don’t
   // expect colons or periods.
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function afterLocalName(code) {
     // End of name.
     if (
@@ -416,7 +439,9 @@ export function factoryTag(
     )
   }
 
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function beforeAttribute(code) {
     // Mark as self-closing.
     if (code === codes.slash) {
@@ -467,14 +492,18 @@ export function factoryTag(
   }
 
   // At the start of an attribute expression.
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function afterAttributeExpression(code) {
     returnState = beforeAttribute
     return optionalEsWhitespace(code)
   }
 
   // In the attribute name.
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function attributePrimaryName(code) {
     // Continuation of the attribute name.
     if (code === codes.dash || (code !== codes.eof && idCont(code))) {
@@ -505,7 +534,9 @@ export function factoryTag(
   }
 
   // After an attribute name, probably finding an equals.
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function afterAttributePrimaryName(code) {
     // Start of a local name.
     if (code === codes.colon) {
@@ -549,7 +580,9 @@ export function factoryTag(
   }
 
   // We’ve seen a `:`, and are expecting a local name.
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function beforeAttributeLocalName(code) {
     // Start of a local name.
     if (code !== codes.eof && idStart(code)) {
@@ -566,7 +599,9 @@ export function factoryTag(
   }
 
   // In the local attribute name.
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function attributeLocalName(code) {
     // Continuation of the local attribute name.
     if (code === codes.dash || (code !== codes.eof && idCont(code))) {
@@ -597,7 +632,9 @@ export function factoryTag(
   }
 
   // After a local attribute name, expecting an equals.
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function afterAttributeLocalName(code) {
     // Start of an attribute value.
     if (code === codes.equalsTo) {
@@ -627,7 +664,9 @@ export function factoryTag(
   }
 
   // After an attribute value initializer, expecting quotes and such.
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function beforeAttributeValue(code) {
     // Start of double- or single quoted value.
     if (code === codes.quotationMark || code === codes.apostrophe) {
@@ -667,7 +706,9 @@ export function factoryTag(
     )
   }
 
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function afterAttributeValueExpression(code) {
     effects.exit(tagAttributeType)
     returnState = beforeAttribute
@@ -675,7 +716,9 @@ export function factoryTag(
   }
 
   // At the start of a quoted attribute value.
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function attributeValueQuotedStart(code) {
     assert(marker !== undefined, 'expected `marker` to be defined')
 
@@ -708,7 +751,9 @@ export function factoryTag(
   }
 
   // In a quoted attribute value.
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function attributeValueQuoted(code) {
     if (code === codes.eof || code === marker || markdownLineEnding(code)) {
       effects.exit(tagAttributeValueLiteralValueType)
@@ -721,7 +766,9 @@ export function factoryTag(
   }
 
   // Right after the slash on a tag, e.g., `<asd /`.
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function selfClosing(code) {
     // End of tag.
     if (code === codes.greaterThan) {
@@ -739,7 +786,9 @@ export function factoryTag(
   }
 
   // At a `>`.
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function tagEnd(code) {
     assert(code === codes.greaterThan, 'expected `>`')
     effects.enter(tagMarkerType)
@@ -750,7 +799,9 @@ export function factoryTag(
   }
 
   // Optionally start whitespace.
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function optionalEsWhitespace(code) {
     if (markdownLineEnding(code)) {
       if (allowLazy) {
@@ -786,7 +837,9 @@ export function factoryTag(
   }
 
   // Continue optional whitespace.
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function optionalEsWhitespaceContinue(code) {
     if (
       markdownLineEnding(code) ||
@@ -800,7 +853,9 @@ export function factoryTag(
     return optionalEsWhitespaceContinue
   }
 
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function crashEol() {
     throw new VFileMessage(
       'Unexpected lazy line in container, expected line to be prefixed with `>` when in a block quote, whitespace when in a list, etc',
@@ -847,7 +902,9 @@ function tokenizeLazyLineEnd(effects, ok, nok) {
 
   return start
 
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function start(code) {
     assert(markdownLineEnding(code), 'expected eol')
     effects.enter(types.lineEnding)
@@ -856,7 +913,9 @@ function tokenizeLazyLineEnd(effects, ok, nok) {
     return lineStart
   }
 
-  /** @type {State} */
+  /**
+   * @type {State}
+   */
   function lineStart(code) {
     return self.parser.lazy[self.now().line] ? nok(code) : ok(code)
   }

@@ -7,17 +7,15 @@
 /**
  * @typedef Options
  *   Configuration (optional).
- * @property {Acorn} [acorn]
- *   Acorn parser to use.
- * @property {AcornOptions} [acornOptions]
- *   Options to pass to acorn (default: `{ecmaVersion: 2020, sourceType:
- *   'module'}`).
- *   All fields can be set.
- *   Positional info (`loc`, `range`) is set on ES nodes regardless of acorn
- *   options.
- * @property {boolean} [addResult=false]
- *   Whether to add an `estree` field to the `mdxTextJsx` and `mdxFlowJsx`
- *   tokens with the results from acorn.
+ * @property {Acorn | null | undefined} [acorn]
+ *   Acorn parser to use (optional).
+ * @property {AcornOptions | null | undefined} [acornOptions]
+ *   Configuration for acorn (default: `{ecmaVersion: 2020, locations: true,
+ *   sourceType: 'module'}`).
+ *
+ *   All fields except `locations` can be set.
+ * @property {boolean | null | undefined} [addResult=false]
+ *   Whether to add `estree` fields to tokens with results from acorn.
  */
 
 import {codes} from 'micromark-util-symbol/codes.js'
@@ -25,12 +23,13 @@ import {jsxText} from './jsx-text.js'
 import {jsxFlow} from './jsx-flow.js'
 
 /**
- * @param {Options} [options]
+ * @param {Options | null | undefined} [options]
  * @returns {Extension}
  */
-export function mdxJsx(options = {}) {
-  const acorn = options.acorn
-  /** @type {AcornOptions|undefined} */
+export function mdxJsx(options) {
+  const settings = options || {}
+  const acorn = settings.acorn
+  /** @type {AcornOptions | undefined} */
   let acornOptions
 
   if (acorn) {
@@ -42,15 +41,27 @@ export function mdxJsx(options = {}) {
 
     acornOptions = Object.assign(
       {ecmaVersion: 2020, sourceType: 'module'},
-      options.acornOptions,
+      settings.acornOptions,
       {locations: true}
     )
-  } else if (options.acornOptions || options.addResult) {
+  } else if (settings.acornOptions || settings.addResult) {
     throw new Error('Expected an `acorn` instance passed in as `options.acorn`')
   }
 
   return {
-    flow: {[codes.lessThan]: jsxFlow(acorn, acornOptions, options.addResult)},
-    text: {[codes.lessThan]: jsxText(acorn, acornOptions, options.addResult)}
+    flow: {
+      [codes.lessThan]: jsxFlow(
+        acorn || undefined,
+        acornOptions,
+        settings.addResult || false
+      )
+    },
+    text: {
+      [codes.lessThan]: jsxText(
+        acorn || undefined,
+        acornOptions,
+        settings.addResult || false
+      )
+    }
   }
 }
