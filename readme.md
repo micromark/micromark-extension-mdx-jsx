@@ -8,7 +8,7 @@
 [![Backers][backers-badge]][collective]
 [![Chat][chat-badge]][chat]
 
-[micromark][] extension to support MDX JSX (`<Component />`).
+[micromark][] extension to support [MDX][mdxjs] expressions (`<Component />`).
 
 ## Contents
 
@@ -18,6 +18,7 @@
 *   [Use](#use)
 *   [API](#api)
     *   [`mdxJsx(options?)`](#mdxjsxoptions)
+    *   [`Options`](#options)
 *   [Authoring](#authoring)
 *   [Syntax](#syntax)
 *   [Errors](#errors)
@@ -33,29 +34,35 @@
 
 ## What is this?
 
-This package contains extensions that add support for JSX enabled by MDX to
-[`micromark`][micromark].
+This package contains an extension that adds support for the JSX syntax enabled
+by [MDX][mdxjs] to [`micromark`][micromark].
+These extensions are used inside MDX.
 It mostly matches how JSX works in most places that support it (TypeScript,
-Babel, esbuild, etc).
+Babel, esbuild, SWC, etc).
+
+This package can be made aware or unaware of JavaScript syntax.
+When unaware, expressions could include Rust or variables or whatnot.
 
 ## When to use this
 
-These tools are all low-level.
-In many cases, you want to use [`remark-mdx`][remark-mdx] with remark instead.
-When you are using [`mdx-js/mdx`][mdxjs], that is already included.
+This project is useful when you want to support JSX in markdown.
 
-Even when you want to use `micromark`, you likely want to use
-[`micromark-extension-mdxjs`][micromark-extension-mdxjs] to support all MDX
-features.
-That extension includes this extension.
+You can use this extension when you are working with [`micromark`][micromark].
+To support all MDX features, use
+[`micromark-extension-mdxjs`][micromark-extension-mdxjs] instead.
 
-When working with [`mdast-util-from-markdown`][mdast-util-from-markdown], you
-must combine this package with [`mdast-util-mdx-jsx`][mdast-util-mdx-jsx].
+When you need a syntax tree, combine this package with
+[`mdast-util-mdx-jsx`][mdast-util-mdx-jsx].
+
+All these packages are used in [`remark-mdx`][remark-mdx], which focusses on
+making it easier to transform content by abstracting these internals away.
+
+When you are using [`mdx-js/mdx`][mdxjs], all of this is already included.
 
 ## Install
 
 This package is [ESM only][esm].
-In Node.js (version 12.20+, 14.14+, 16.0+, or 18.0+), install with [npm][]:
+In Node.js (version 16+), install with [npm][]:
 
 ```sh
 npm install micromark-extension-mdx-jsx
@@ -98,39 +105,40 @@ Yields:
 
 ## API
 
-This package exports the identifier `mdxJsx`.
+This package exports the identifier [`mdxJsx`][api-mdx-jsx].
 There is no default export.
 
-The export map supports the endorsed [`development` condition][condition].
+The export map supports the [`development` condition][development].
 Run `node --conditions development module.js` to get instrumented dev code.
 Without this condition, production code is loaded.
 
 ### `mdxJsx(options?)`
 
-Add support for parsing JSX in markdown.
+Create an extension for `micromark` to enable MDX JSX syntax.
 
-Function that can be called to get a syntax extension for micromark (passed
-in `extensions`).
+###### Parameters
 
-##### `options`
+*   `options` ([`Options`][api-options], optional)
+    — configuration
 
-Configuration (optional).
+###### Returns
 
-###### `options.acorn`
+Extension for `micromark` that can be passed in `extensions` to enable MDX
+JSX syntax ([`Extension`][micromark-extension]).
 
-Acorn parser to use ([`Acorn`][acorn], optional).
+### `Options`
 
-###### `options.acornOptions`
+Configuration (TypeScript type).
 
-Options to pass to acorn (`Object`, default: `{ecmaVersion: 2020, sourceType:
-'module'}`).
-All fields can be set.
-Positional info (`loc`, `range`) is set on ES nodes regardless of acorn options.
+###### Fields
 
-###### `options.addResult`
-
-Whether to add an `estree` field to the `mdxTextJsx` and `mdxFlowJsx` tokens
-with the results from acorn (`boolean`, default: `false`).
+*   `acorn` ([`Acorn`][acorn], optional)
+    — acorn parser to use
+*   `acornOptions` ([`AcornOptions`][acorn-options], default:
+    `{ecmaVersion: 2020, locations: true, sourceType: 'module'}`)
+    — configuration for acorn; all fields except `locations` can be set
+*   `addResult` (`boolean`, default: `false`)
+    — whether to add `estree` fields to tokens with results from acorn
 
 ## Authoring
 
@@ -138,10 +146,8 @@ When authoring markdown with JSX, keep in mind that MDX is a whitespace
 sensitive and line-based language, while JavaScript is insensitive to
 whitespace.
 This affects how markdown and JSX interleave with eachother in MDX.
-For more info on how it works, see [§ Interleaving][interleaving] on the MDX
-site.
-
-Some features of JS(X) are not supported, notably:
+For more info on how it works, see [§ Interleaving][mdxjs-interleaving] on the
+MDX site.
 
 ###### Comments inside tags
 
@@ -168,8 +174,8 @@ A PR that adds support for them would be accepted.
 ###### Element or fragment attribute values
 
 JSX elements or JSX fragments as attribute values are not supported.
-The reason for this change is that it would be confusing whether Markdown would
-work.
+The reason for this change is that it would be confusing whether markdown
+would work.
 
 Incorrect:
 
@@ -182,13 +188,14 @@ Correct:
 
 ```jsx
 <welcome name='Mars' />
+<welcome name={<span>Jupiter</span>} />
 ```
 
 ###### Greater than (`>`) and right curly brace (`}`)
 
-JSX does not allow U+003E GREATER THAN (`>`) or U+007D RIGHT CURLY BRACE (`}`)
-literally in text, they need to be encoded as character references (or
-expressions).
+JSX does not allow U+003E GREATER THAN (`>`) or U+007D RIGHT CURLY BRACE
+(`}`) literally in text, they need to be encoded as character references
+(or expressions).
 There is no good reason for this (some JSX parsers agree with us and don’t
 crash either).
 Therefore, in MDX, U+003E GREATER THAN (`>`) and U+007D RIGHT CURLY BRACE
@@ -196,111 +203,94 @@ Therefore, in MDX, U+003E GREATER THAN (`>`) and U+007D RIGHT CURLY BRACE
 
 ## Syntax
 
-This extensions support MDX both agnostic and gnostic to JavaScript.
-The first is agnostic to the programming language (it could contain attribute
-expressions and attribute value expressions with Rust or so), the last is
-specific to JavaScript (in which case attribute expressions must be spread
-expressions).
-To turn on gnostic mode, pass `acorn`.
-
-The syntax of JSX supported here is described in [W3C Backus–Naur form][w3c-bnf]
-with the following additions:
-
-1.  **`A - B`** — matches any string that matches `A` but does not match `B`.
-2.  **`'string'`** — same as **`"string"`** but with single quotes.
-3.  **`BREAK`** — lookahead match for a block break opportunity (either
-    EOF (end of file), U+000A LINE FEED (LF), U+000D CARRIAGE RETURN (CR), or
-    another JSX tag)
-
-The syntax is defined as follows, however, do note that interleaving (mixing)
-of markdown and MDX is defined elsewhere, and that the constraints are imposed
-in [`mdast-util-mdx-jsx`][mdast-util-mdx-jsx].
+JSX forms with the following BNF:
 
 <!--grammar start-->
 
-<pre><code>; Entries
-<a id=x-mdx-flow href=#x-mdx-flow>mdxFlow</a> ::= *<a href=#x-space-or-tab>spaceOrTab</a> <a href=#x-element>element</a> *<a href=#x-space-or-tab>spaceOrTab</a> BREAK
-<a id=x-mdx-text href=#x-mdx-text>mdxText</a> ::= <a href=#x-element>element</a>
+<pre><code><a id=x-mdx-jsx-flow href=#x-mdx-jsx-flow>mdx_jsx_flow</a> ::= <a href=#x-mdx-jsx>mdx_jsx</a> *<a href=#x-space-or-tab>space_or_tab</a> [<a href=#x-mdx-jsx>mdx_jsx</a> *<a href=#x-space-or-tab>space_or_tab</a>]
+<a id=x-mdx-jsx-text href=#x-mdx-jsx-text>mdx_jsx_text</a> ::= <a href=#x-mdx-jsx>mdx_jsx</a>
 
-<a id=x-element href=#x-element>element</a> ::= <a href=#x-self-closing>selfClosing</a> | <a href=#x-closed>closed</a>
-<a id=x-self-closing href=#x-self-closing>selfClosing</a> ::=
-  ; constraint: tag MUST be named, MUST NOT be closing, and MUST be self-closing
-  <a href=#x-tag>tag</a>
-<a id=x-closed href=#x-closed>closed</a> ::=
-  ; constraint: tag MUST NOT be closing and MUST NOT be self-closing
-  <a href=#x-tag>tag</a>
-  *<a href=#x-data>data</a>
-  ; constraint: tag MUST be closing, MUST NOT be self-closing, MUST NOT have
-  ; attributes, and either both tags MUST have the same name or both tags MUST
-  ; be nameless
-  <a href=#x-tag>tag</a>
-
-<a id=x-data href=#x-data>data</a> ::= <a href=#x-element>element</a> | <a href=#x-text>text</a>
-
-; constraint: markdown whitespace (<a href=#x-space-or-tab>spaceOrTab</a> | '\r' | '\n') is NOT
+; constraint: markdown whitespace (`<a href=#x-space-or-tab>space_or_tab</a> | <a href=#x-eol>eol</a>`) is NOT
 ; allowed directly after `&lt;` in order to allow `1 &lt; 3` in markdown.
-<a id=x-tag href=#x-tag>tag</a> ::=
-  '<' *1<a href=#x-closing>closing</a>
-  *1(*<a href=#x-whitespace>whitespace</a> <a href=#x-name>name</a> *1<a href=#x-attributes-after-identifier>attributesAfterIdentifier</a> *1<a href=#x-closing>closing</a>)
+<a id=x-mdx-jsx href=#x-mdx-jsx>mdx_jsx</a> ::=
+  '&lt;' [<a href=#x-closing>closing</a>]
+  [*<a href=#x-whitespace>whitespace</a> <a href=#x-name>name</a> [<a href=#x-attributes-after-identifier>attributes_after_identifier</a>] [<a href=#x-closing>closing</a>]]
   *<a href=#x-whitespace>whitespace</a> '>'
 
-<a id=x-attributes-after-identifier href=#x-attributes-after-identifier>attributesAfterIdentifier</a> ::=
-  1*<a href=#x-whitespace>whitespace</a> (<a href=#x-attributes-boolean>attributesBoolean</a> | <a href=#x-attributes-value>attributesValue</a>) |
-  *<a href=#x-whitespace>whitespace</a> <a href=#x-attributes-expression>attributesExpression</a> |
-<a id=x-attributes-after-value href=#x-attributes-after-value>attributesAfterValue</a> ::=
-  *<a href=#x-whitespace>whitespace</a> (<a href=#x-attributes-boolean>attributesBoolean</a> | <a href=#x-attributes-expression>attributesExpression</a> | <a href=#x-attributes-value>attributesValue</a>)
-<a name=attributes-boolean href=#x-attributes-boolean>attributesBoolean</a> ::= <a href=#x-key>key</a> *1<a href=#x-attributes-after-identifier>attributesAfterIdentifier</a>
+<a id=x-attributes-after-identifier href=#x-attributes-after-identifier>attributes_after_identifier</a> ::=
+  1*<a href=#x-whitespace>whitespace</a> (<a href=#x-attributes-boolean>attributes_boolean</a> | <a href=#x-attributes-value>attributes_value</a>) |
+  *<a href=#x-whitespace>whitespace</a> <a href=#x-attributes-expression>attributes_expression</a> |
+<a id=x-attributes-after-value href=#x-attributes-after-value>attributes_after_value</a> ::=
+  *<a href=#x-whitespace>whitespace</a> (<a href=#x-attributes-boolean>attributes_boolean</a> | <a href=#x-attributes-expression>attributes_expression</a> | <a href=#x-attributes-value>attributes_value</a>)
+<a id=x-attributes-boolean href=#x-attributes-boolean>attributes_boolean</a> ::= <a href=#x-key>key</a> [<a href=#x-attributes-after-identifier>attributes_after_identifier</a>]
 ; Note: in gnostic mode the value of the expression must instead be a single valid ES spread
 ; expression
-<a name=attributes-expression href=#x-attributes-expression>attributesExpression</a> ::= <a href=#x-expression>expression</a> *1<a href=#x-attributes-after-value>attributesAfterValue</a>
-<a name=attributes-value href=#x-attributes-value>attributesValue</a> ::= <a href=#x-key>key</a> <a href=#x-initializer>initializer</a> *1<a href=#x-attributes-after-value>attributesAfterValue</a>
+<a id=x-attributes-expression href=#x-attributes-expression>attributes_expression</a> ::= <a href=#x-expression>expression</a> [<a href=#x-attributes-after-value>attributes_after_value</a>]
+<a id=x-attributes-value href=#x-attributes-value>attributes_value</a> ::= <a href=#x-key>key</a> <a href=#x-initializer>initializer</a> [<a href=#x-attributes-after-value>attributes_after_value</a>]
 
 <a id=x-closing href=#x-closing>closing</a> ::= *<a href=#x-whitespace>whitespace</a> '/'
 
-<a id=x-name href=#x-name>name</a> ::= <a href=#x-identifier>identifier</a> *1(<a href=#x-local>local</a> | <a href=#x-members>members</a>)
-<a id=x-key href=#x-key>key</a> ::= <a href=#x-identifier>identifier</a> *1<a href=#x-local>local</a>
+<a id=x-name href=#x-name>name</a> ::= <a href=#x-identifier>identifier</a> [<a href=#x-local>local</a> | <a href=#x-members>members</a>]
+<a id=x-key href=#x-key>key</a> ::= <a href=#x-identifier>identifier</a> [<a href=#x-local>local</a>]
 <a id=x-local href=#x-local>local</a> ::= *<a href=#x-whitespace>whitespace</a> ':' *<a href=#x-whitespace>whitespace</a> <a href=#x-identifier>identifier</a>
 <a id=x-members href=#x-members>members</a> ::= <a href=#x-member>member</a> *<a href=#x-member>member</a>
 <a id=x-member href=#x-member>member</a> ::= *<a href=#x-whitespace>whitespace</a> '.' *<a href=#x-whitespace>whitespace</a> <a href=#x-identifier>identifier</a>
 
-<a id=x-identifier href=#x-identifier>identifier</a> ::= <a href=#x-identifier-start>identifierStart</a> *<a href=#x-identifier-part>identifierPart</a>
+<a id=x-identifier href=#x-identifier>identifier</a> ::= <a href=#x-identifier-start>identifier_start</a> *<a href=#x-identifier-part>identifier_part</a>
 <a id=x-initializer href=#x-initializer>initializer</a> ::= *<a href=#x-whitespace>whitespace</a> '=' *<a href=#x-whitespace>whitespace</a> <a href=#x-value>value</a>
-<a id=x-value href=#x-value>value</a> ::= <a href=#x-double-quoted>doubleQuoted</a> | <a href=#x-single-quoted>singleQuoted</a> | <a href=#x-expression>expression</a>
+<a id=x-value href=#x-value>value</a> ::= <a href=#x-double-quoted>double_quoted</a> | <a href=#x-single-quoted>single_quoted</a> | <a href=#x-expression>expression</a>
 ; Note: in gnostic mode the value must instead be a single valid ES expression
-<a id=x-expression href=#x-expression>expression</a> ::= '{' *(<a href=#x-expression-text>expressionText</a> | <a href=#x-expression>expression</a>) '}'
+<a id=x-expression href=#x-expression>expression</a> ::= '{' *(<a href=#x-expression-text>expression_text</a> | <a href=#x-expression>expression</a>) '}'
 
-<a id=x-double-quoted href=#x-double-quoted>doubleQuoted</a> ::= '"' *<a href=#x-double-quoted-text>doubleQuotedText</a> '"'
-<a id=x-single-quoted href=#x-single-quoted>singleQuoted</a> ::= "'" *<a href=#x-single-quoted-text>singleQuotedText</a> "'"
+<a id=x-double-quoted href=#x-double-quoted>double_quoted</a> ::= '"' *<a href=#x-double-quoted-text>double_quoted_text</a> '"'
+<a id=x-single-quoted href=#x-single-quoted>single_quoted</a> ::= "'" *<a href=#x-single-quoted-text>single_quoted_text</a> "'"
 
-<a id=x-space-or-tab href=#x-space-or-tab>spaceOrTab</a> ::= ' ' | '\t'
-<a id=x-text href=#x-text>text</a> ::= <a href=#x-character>character</a> - '<' - '{'
-<a id=x-whitespace href=#x-whitespace>whitespace</a> ::= <a href=#x-es-whitespace>esWhitespace</a>
-<a id=x-double-quoted-text href=#x-double-quoted-text>doubleQuotedText</a> ::= <a href=#x-character>character</a> - '"'
-<a id=x-single-quoted-text href=#x-single-quoted-text>singleQuotedText</a> ::= <a href=#x-character>character</a> - "'"
-<a id=x-expression-text href=#x-expression-text>expressionText</a> ::= <a href=#x-character>character</a> - '{' - '}'
-<a id=x-identifier-start href=#x-identifier-start>identifierStart</a> ::= <a href=#x-es-identifier-start>esIdentifierStart</a>
-<a id=x-identifier-part href=#x-identifier-part>identifierPart</a> ::= <a href=#x-es-identifier-part>esIdentifierPart</a> | '-'
+<a id=x-whitespace href=#x-whitespace>whitespace</a> ::= <a href=#x-es-whitespace>es_whitespace</a>
+<a id=x-double-quoted-text href=#x-double-quoted-text>double_quoted_text</a> ::= char - '"'
+<a id=x-single-quoted-text href=#x-single-quoted-text>single_quoted_text</a> ::= char - "'"
+<a id=x-expression-text href=#x-expression-text>expression_text</a> ::= char - '{' - '}'
+<a id=x-identifier-start href=#x-identifier-start>identifier_start</a> ::= <a href=#x-es-identifier-start>es_identifier_start</a>
+<a id=x-identifier-part href=#x-identifier-part>identifier_part</a> ::= <a href=#x-es-identifier-part>es_identifier_part</a> | '-'
 
-; Unicode
-; Any unicode code point
-<a id=x-character href=#x-character>character</a> ::=
+<a id=x-space-or-tab href=#x-space-or-tab>space_or_tab</a> ::= '\t' | ' '
+<a id=x-eol href=#x-eol>eol</a> ::= '\n' | '\r' | '\r\n'
 
 ; ECMAScript
 ; See “IdentifierStart”: &lt;<a href=https://tc39.es/ecma262/#prod-IdentifierStart>https://tc39.es/ecma262/#prod-IdentifierStart</a>>
-<a id=x-es-identifier-start href=#x-es-identifier-start>esIdentifierStart</a> ::=
+<a id=x-es-identifier-start href=#x-es-identifier-start>es_identifier_start</a> ::= ?
 ; See “IdentifierPart”: &lt;<a href=https://tc39.es/ecma262/#prod-IdentifierPart>https://tc39.es/ecma262/#prod-IdentifierPart</a>>
-<a id=x-es-identifier-part href=#x-es-identifier-part>esIdentifierPart</a> ::=
+<a id=x-es-identifier-part href=#x-es-identifier-part>es_identifier_part</a> ::= ?
 ; See “Whitespace”: &lt;<a href=https://tc39.es/ecma262/#prod-WhiteSpace>https://tc39.es/ecma262/#prod-WhiteSpace</a>>
-<a id=x-es-whitespace href=#x-es-whitespace>esWhitespace</a> ::=
+<a id=x-es-whitespace href=#x-es-whitespace>es_whitespace</a> ::= ?
 </code></pre>
 
 <!--grammar end-->
 
+As the flow construct occurs in flow, like all flow constructs, it must be
+followed by an eol (line ending) or eof (end of file).
+
+The grammar for JSX in markdown is much stricter than that of HTML in
+markdown.
+The primary benefit of this is that tags are parsed into tokens, and thus
+can be processed.
+Another, arguable, benefit of this is that it comes with syntax errors: if
+an author types something that is nonsensical, an error is thrown with
+information about where it happened, what occurred, and what was expected
+instead.
+
+This extension supports expressions both aware and unaware to JavaScript
+(respectively gnostic and agnostic).
+Depending on whether acorn is passed, either valid JavaScript must be used in
+expressions, or arbitrary text (such as Rust code or so) can be used.
+
+More on this can be found in
+[§ Syntax of `micromark-extension-mdx-expression`][expression-syntax].
+
 ## Errors
 
-In gnostic mode, expressions are parsed with
+In aware (gnostic) mode, expressions are parsed with
 [`micromark-extension-mdx-expression`][micromark-extension-mdx-expression],
-which throws some other errors.
+which throws some more errors.
 
 ### Unexpected end of file $at, expected $expect
 
@@ -417,27 +407,29 @@ Many tokens are used:
 ## Types
 
 This package is fully typed with [TypeScript][].
-It exports the additional type `Options`.
+It exports the additional type [`Options`][api-options].
 
 ## Compatibility
 
-This package is at least compatible with all maintained versions of Node.js.
-As of now, that is Node.js 12.20+, 14.14+, 16.0+, and 18.0+.
-It also works in Deno and modern browsers.
+Projects maintained by the unified collective are compatible with all maintained
+versions of Node.js.
+As of now, that is Node.js 16+.
+Our projects sometimes work with older versions, but this is not guaranteed.
+
+These extensions work with `micromark` version 3+.
 
 ## Security
 
-This package deals with compiling JavaScript.
-If you do not trust the JavaScript, this package does nothing to change that.
+This package is safe.
 
 ## Related
 
-*   [`micromark/micromark-extension-mdxjs`][micromark-extension-mdxjs]
-    — micromark extension to support MDX
-*   [`syntax-tree/mdast-util-mdx-jsx`][mdast-util-mdx-jsx]
-    — mdast utility to support MDX JSX
+*   [`micromark-extension-mdxjs`][micromark-extension-mdxjs]
+    — support all MDX syntax
+*   [`mdast-util-mdx-jsx`][mdast-util-mdx-jsx]
+    — support MDX JSX in mdast
 *   [`remark-mdx`][remark-mdx]
-    — remark plugin to support MDX syntax
+    — support all MDX syntax in remark
 
 ## Contribute
 
@@ -499,13 +491,17 @@ abide by its terms.
 
 [typescript]: https://www.typescriptlang.org
 
-[condition]: https://nodejs.org/api/packages.html#packages_resolving_user_conditions
+[development]: https://nodejs.org/api/packages.html#packages_resolving_user_conditions
 
 [micromark]: https://github.com/micromark/micromark
+
+[micromark-extension]: https://github.com/micromark/micromark#syntaxextension
 
 [micromark-extension-mdxjs]: https://github.com/micromark/micromark-extension-mdxjs
 
 [micromark-extension-mdx-expression]: https://github.com/micromark/micromark-extension-mdx-expression
+
+[expression-syntax]: https://github.com/micromark/micromark-extension-mdx-expression/blob/main/packages/micromark-extension-mdx-expression/readme.md#syntax
 
 [mdast-util-mdx-jsx]: https://github.com/syntax-tree/mdast-util-mdx-jsx
 
@@ -515,8 +511,12 @@ abide by its terms.
 
 [mdxjs]: https://mdxjs.com
 
-[interleaving]: https://mdxjs.com/docs/what-is-mdx/#interleaving
-
-[w3c-bnf]: https://www.w3.org/Notation.html
+[mdxjs-interleaving]: https://mdxjs.com/docs/what-is-mdx/#interleaving
 
 [acorn]: https://github.com/acornjs/acorn
+
+[acorn-options]: https://github.com/acornjs/acorn/blob/96c721dbf89d0ccc3a8c7f39e69ef2a6a3c04dfa/acorn/dist/acorn.d.ts#L16
+
+[api-mdx-jsx]: #mdxjsxoptions
+
+[api-options]: #options
