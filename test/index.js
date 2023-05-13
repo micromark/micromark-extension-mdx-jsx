@@ -9,7 +9,7 @@ import test from 'node:test'
 import {Parser} from 'acorn'
 import acornJsx from 'acorn-jsx'
 import {micromark} from 'micromark'
-import {mdxJsx as syntax} from '../dev/index.js'
+import {mdxJsx} from 'micromark-extension-mdx-jsx'
 
 const acorn = Parser.extend(acornJsx())
 
@@ -36,42 +36,48 @@ function end() {
   this.setData('slurpOneLineEnding', true)
 }
 
-test('core', () => {
+test('core', async function () {
+  assert.deepEqual(
+    Object.keys(await import('micromark-extension-mdx-jsx')).sort(),
+    ['mdxJsx'],
+    'should expose the public api'
+  )
+
   assert.throws(
-    () => {
+    function () {
       // @ts-expect-error: runtime.
-      syntax({acorn: true})
+      mdxJsx({acorn: true})
     },
     /Expected a proper `acorn` instance passed in as `options\.acorn`/,
     'should crash on `acorn` w/o `parse`'
   )
 
   assert.throws(
-    () => {
+    function () {
       // @ts-expect-error: runtime.
-      syntax({acornOptions: {}})
+      mdxJsx({acornOptions: {}})
     },
     /Expected an `acorn` instance passed in as `options\.acorn`/,
     'should crash on `acornOptions` w/o `acorn`'
   )
 
   assert.throws(
-    () => {
-      syntax({addResult: true})
+    function () {
+      mdxJsx({addResult: true})
     },
     /Expected an `acorn` instance passed in as `options\.acorn`/,
     'should crash on `addResult` w/o `acorn`'
   )
 
   assert.equal(
-    micromark('a <b/> c.', {extensions: [syntax()], htmlExtensions: [html]}),
+    micromark('a <b/> c.', {extensions: [mdxJsx()], htmlExtensions: [html]}),
     '<p>a  c.</p>',
     'should support a self-closing element'
   )
 
   assert.equal(
     micromark('a <b></b> c.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a  c.</p>',
@@ -79,14 +85,14 @@ test('core', () => {
   )
 
   assert.equal(
-    micromark('a <></> c.', {extensions: [syntax()], htmlExtensions: [html]}),
+    micromark('a <></> c.', {extensions: [mdxJsx()], htmlExtensions: [html]}),
     '<p>a  c.</p>',
     'should support fragments'
   )
 
   assert.equal(
     micromark('a <b>*b*</b> c.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a <em>b</em> c.</p>',
@@ -94,16 +100,16 @@ test('core', () => {
   )
 })
 
-test('text (agnostic)', () => {
+test('text (agnostic)', function () {
   assert.equal(
-    micromark('a <b /> c', {extensions: [syntax()], htmlExtensions: [html]}),
+    micromark('a <b /> c', {extensions: [mdxJsx()], htmlExtensions: [html]}),
     '<p>a  c</p>',
     'should support a self-closing element'
   )
 
   assert.equal(
     micromark('a <b> c </b> d', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a  c  d</p>',
@@ -111,14 +117,14 @@ test('text (agnostic)', () => {
   )
 
   assert.equal(
-    micromark('a <b> c', {extensions: [syntax()], htmlExtensions: [html]}),
+    micromark('a <b> c', {extensions: [mdxJsx()], htmlExtensions: [html]}),
     '<p>a  c</p>',
     'should support an unclosed element'
   )
 
   assert.equal(
     micromark('a <b {1 + 1} /> c', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a  c</p>',
@@ -127,7 +133,7 @@ test('text (agnostic)', () => {
 
   assert.equal(
     micromark('a <b c={1 + 1} /> d', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a  d</p>',
@@ -135,10 +141,10 @@ test('text (agnostic)', () => {
   )
 })
 
-test('text (gnostic)', () => {
+test('text (gnostic)', function () {
   assert.equal(
     micromark('a <b /> c', {
-      extensions: [syntax({acorn})],
+      extensions: [mdxJsx({acorn})],
       htmlExtensions: [html]
     }),
     '<p>a  c</p>',
@@ -147,7 +153,7 @@ test('text (gnostic)', () => {
 
   assert.equal(
     micromark('a <b> c </b> d', {
-      extensions: [syntax({acorn})],
+      extensions: [mdxJsx({acorn})],
       htmlExtensions: [html]
     }),
     '<p>a  c  d</p>',
@@ -156,7 +162,7 @@ test('text (gnostic)', () => {
 
   assert.equal(
     micromark('a <b> c', {
-      extensions: [syntax({acorn})],
+      extensions: [mdxJsx({acorn})],
       htmlExtensions: [html]
     }),
     '<p>a  c</p>',
@@ -165,7 +171,7 @@ test('text (gnostic)', () => {
 
   assert.equal(
     micromark('a <b {...c} /> d', {
-      extensions: [syntax({acorn})],
+      extensions: [mdxJsx({acorn})],
       htmlExtensions: [html]
     }),
     '<p>a  d</p>',
@@ -174,7 +180,7 @@ test('text (gnostic)', () => {
 
   assert.equal(
     micromark('a <b {...{c: 1, d: Infinity, e: false}} /> f', {
-      extensions: [syntax({acorn})],
+      extensions: [mdxJsx({acorn})],
       htmlExtensions: [html]
     }),
     '<p>a  f</p>',
@@ -183,7 +189,7 @@ test('text (gnostic)', () => {
 
   assert.equal(
     micromark('a <b {...[1, Infinity, false]} /> d', {
-      extensions: [syntax({acorn})],
+      extensions: [mdxJsx({acorn})],
       htmlExtensions: [html]
     }),
     '<p>a  d</p>',
@@ -192,7 +198,7 @@ test('text (gnostic)', () => {
 
   assert.equal(
     micromark('a <b c={1 + 1} /> d', {
-      extensions: [syntax({acorn})],
+      extensions: [mdxJsx({acorn})],
       htmlExtensions: [html]
     }),
     '<p>a  d</p>',
@@ -200,40 +206,40 @@ test('text (gnostic)', () => {
   )
 
   assert.throws(
-    () => {
-      micromark('a <b c={} /> d', {extensions: [syntax({acorn})]})
+    function () {
+      micromark('a <b c={} /> d', {extensions: [mdxJsx({acorn})]})
     },
     /Unexpected empty expression/,
     'should crash on an empty attribute value expression'
   )
 
   assert.throws(
-    () => {
-      micromark('a <b {1 + 1} /> c', {extensions: [syntax({acorn})]})
+    function () {
+      micromark('a <b {1 + 1} /> c', {extensions: [mdxJsx({acorn})]})
     },
     /Could not parse expression with acorn: Unexpected token/,
     'should crash on a non-spread attribute expression'
   )
 
   assert.throws(
-    () => {
-      micromark('a <b c={?} /> d', {extensions: [syntax({acorn})]})
+    function () {
+      micromark('a <b c={?} /> d', {extensions: [mdxJsx({acorn})]})
     },
     /Could not parse expression with acorn: Unexpected token/,
     'should crash on invalid JS in an attribute value expression'
   )
 
   assert.throws(
-    () => {
-      micromark('a <b {?} /> c', {extensions: [syntax({acorn})]})
+    function () {
+      micromark('a <b {?} /> c', {extensions: [mdxJsx({acorn})]})
     },
     /Could not parse expression with acorn: Unexpected token/,
     'should crash on invalid JS in an attribute expression'
   )
 
   assert.throws(
-    () => {
-      micromark('a <b{c=d}={}/> f', {extensions: [syntax({acorn})]})
+    function () {
+      micromark('a <b{c=d}={}/> f', {extensions: [mdxJsx({acorn})]})
     },
     /Unexpected `ExpressionStatement` in code: expected an object spread/,
     'should crash on invalid JS in an attribute expression (2)'
@@ -241,7 +247,7 @@ test('text (gnostic)', () => {
 
   assert.equal(
     micromark('a <b c={(2)} d={<e />} /> f', {
-      extensions: [syntax({acorn})],
+      extensions: [mdxJsx({acorn})],
       htmlExtensions: [html]
     }),
     '<p>a  f</p>',
@@ -249,22 +255,22 @@ test('text (gnostic)', () => {
   )
 })
 
-test('text (complete)', () => {
+test('text (complete)', function () {
   assert.equal(
-    micromark('a <b> c', {extensions: [syntax()], htmlExtensions: [html]}),
+    micromark('a <b> c', {extensions: [mdxJsx()], htmlExtensions: [html]}),
     '<p>a  c</p>',
     'should support an unclosed element'
   )
 
   assert.equal(
-    micromark('a <> c', {extensions: [syntax()], htmlExtensions: [html]}),
+    micromark('a <> c', {extensions: [mdxJsx()], htmlExtensions: [html]}),
     '<p>a  c</p>',
     'should support an unclosed fragment'
   )
 
   assert.equal(
     micromark('a < \t>b</>', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a &lt; \t&gt;b</p>',
@@ -273,7 +279,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('a < \nb\t>b</b>', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a &lt;\nb\t&gt;b</p>',
@@ -281,70 +287,70 @@ test('text (complete)', () => {
   )
 
   assert.throws(
-    () => {
-      micromark('a <!> b', {extensions: [syntax()]})
+    function () {
+      micromark('a <!> b', {extensions: [mdxJsx()]})
     },
     /Unexpected character `!` \(U\+0021\) before name, expected a character that can start a name, such as a letter, `\$`, or `_`/,
     'should crash on a nonconforming start identifier'
   )
 
   assert.throws(
-    () => {
-      micromark('a <a></(> b.', {extensions: [syntax()]})
+    function () {
+      micromark('a <a></(> b.', {extensions: [mdxJsx()]})
     },
     /Unexpected character `\(` \(U\+0028\) before name, expected a character that can start a name, such as a letter, `\$`, or `_`/,
     'should crash on a nonconforming start identifier in a closing tag'
   )
 
   assert.equal(
-    micromark('a <π /> b.', {extensions: [syntax()], htmlExtensions: [html]}),
+    micromark('a <π /> b.', {extensions: [mdxJsx()], htmlExtensions: [html]}),
     '<p>a  b.</p>',
     'should support non-ascii identifier start characters'
   )
 
   assert.throws(
-    () => {
-      micromark('a <© /> b.', {extensions: [syntax()]})
+    function () {
+      micromark('a <© /> b.', {extensions: [mdxJsx()]})
     },
     /Unexpected character `©` \(U\+00A9\) before name, expected a character that can start a name, such as a letter, `\$`, or `_`/,
     'should crash on non-conforming non-ascii identifier start characters'
   )
 
   assert.throws(
-    () => {
-      micromark('a <!--b-->', {extensions: [syntax()]})
+    function () {
+      micromark('a <!--b-->', {extensions: [mdxJsx()]})
     },
     /Unexpected character `!` \(U\+0021\) before name, expected a character that can start a name, such as a letter, `\$`, or `_` \(note: to create a comment in MDX, use `{\/\* text \*\/}`\)/,
     'should crash nicely on what might be a comment'
   )
 
   assert.throws(
-    () => {
-      micromark('a <// b\nc/>', {extensions: [syntax()]})
+    function () {
+      micromark('a <// b\nc/>', {extensions: [mdxJsx()]})
     },
     /Unexpected character `\/` \(U\+002F\) before name, expected a character that can start a name, such as a letter, `\$`, or `_` \(note: JS comments in JSX tags are not supported in MDX\)/,
     'should crash nicely JS line comments inside tags (1)'
   )
 
   assert.throws(
-    () => {
-      micromark('a <b// c\nd/>', {extensions: [syntax()]})
+    function () {
+      micromark('a <b// c\nd/>', {extensions: [mdxJsx()]})
     },
     /Unexpected character `\/` \(U\+002F\) after self-closing slash, expected `>` to end the tag \(note: JS comments in JSX tags are not supported in MDX\)/,
     'should crash nicely JS line comments inside tags (2)'
   )
 
   assert.throws(
-    () => {
-      micromark('a </*b*/c>', {extensions: [syntax()]})
+    function () {
+      micromark('a </*b*/c>', {extensions: [mdxJsx()]})
     },
     /Unexpected character `\*` \(U\+002A\) before name, expected a character that can start a name, such as a letter, `\$`, or `_` \(note: JS comments in JSX tags are not supported in MDX\)/,
     'should crash nicely JS multiline comments inside tags (1)'
   )
 
   assert.throws(
-    () => {
-      micromark('a <b/*c*/>', {extensions: [syntax()]})
+    function () {
+      micromark('a <b/*c*/>', {extensions: [mdxJsx()]})
     },
     /Unexpected character `\*` \(U\+002A\) after self-closing slash, expected `>` to end the tag \(note: JS comments in JSX tags are not supported in MDX\)/,
     'should crash nicely JS multiline comments inside tags (2)'
@@ -352,7 +358,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('a <a\u200Cb /> b.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a  b.</p>',
@@ -360,16 +366,16 @@ test('text (complete)', () => {
   )
 
   assert.throws(
-    () => {
-      micromark('a <a¬ /> b.', {extensions: [syntax()]})
+    function () {
+      micromark('a <a¬ /> b.', {extensions: [mdxJsx()]})
     },
     /Unexpected character `¬` \(U\+00AC\) in name, expected a name character such as letters, digits, `\$`, or `_`; whitespace before attributes; or the end of the tag/,
     'should crash on non-conforming non-ascii identifier continuation characters'
   )
 
   assert.throws(
-    () => {
-      micromark('a <b@c.d>', {extensions: [syntax()]})
+    function () {
+      micromark('a <b@c.d>', {extensions: [mdxJsx()]})
     },
     /Unexpected character `@` \(U\+0040\) in name, expected a name character such as letters, digits, `\$`, or `_`; whitespace before attributes; or the end of the tag \(note: to create a link in MDX, use `\[text]\(url\)`\)/,
     'should crash nicely on what might be an email link'
@@ -377,7 +383,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('a <a-->b</a-->.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a b.</p>',
@@ -385,8 +391,8 @@ test('text (complete)', () => {
   )
 
   assert.throws(
-    () => {
-      micromark('a <a?> c.', {extensions: [syntax()]})
+    function () {
+      micromark('a <a?> c.', {extensions: [mdxJsx()]})
     },
     /Unexpected character `\?` \(U\+003F\) in name, expected a name character such as letters, digits, `\$`, or `_`; whitespace before attributes; or the end of the tag/,
     'should crash on nonconforming identifier continuation characters'
@@ -394,7 +400,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('a <abc . def.ghi>b</abc.def . ghi>.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a b.</p>',
@@ -402,8 +408,8 @@ test('text (complete)', () => {
   )
 
   assert.throws(
-    () => {
-      micromark('a <b.c@d.e>', {extensions: [syntax()]})
+    function () {
+      micromark('a <b.c@d.e>', {extensions: [mdxJsx()]})
     },
     /Unexpected character `@` \(U\+0040\) in member name, expected a name character such as letters, digits, `\$`, or `_`; whitespace before attributes; or the end of the tag \(note: to create a link in MDX, use `\[text]\(url\)`\)/,
     'should crash nicely on what might be an email link in member names'
@@ -411,7 +417,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('a <svg: rect>b</  svg :rect>.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a b.</p>',
@@ -419,72 +425,72 @@ test('text (complete)', () => {
   )
 
   assert.throws(
-    () => {
-      micromark('a <a:+> c.', {extensions: [syntax()]})
+    function () {
+      micromark('a <a:+> c.', {extensions: [mdxJsx()]})
     },
     /Unexpected character `\+` \(U\+002B\) before local name, expected a character that can start a name, such as a letter, `\$`, or `_` \(note: to create a link in MDX, use `\[text]\(url\)`\)/,
     'should crash on a nonconforming character to start a local name'
   )
 
   assert.throws(
-    () => {
-      micromark('a <http://example.com>', {extensions: [syntax()]})
+    function () {
+      micromark('a <http://example.com>', {extensions: [mdxJsx()]})
     },
     /Unexpected character `\/` \(U\+002F\) before local name, expected a character that can start a name, such as a letter, `\$`, or `_` \(note: to create a link in MDX, use `\[text]\(url\)`\)/,
     'should crash nicely on what might be a protocol in local names'
   )
 
   assert.throws(
-    () => {
-      micromark('a <http: >', {extensions: [syntax()]})
+    function () {
+      micromark('a <http: >', {extensions: [mdxJsx()]})
     },
     /Unexpected character `>` \(U\+003E\) before local name, expected a character that can start a name, such as a letter, `\$`, or `_`/,
     'should crash nicely on what might be a protocol in local names'
   )
 
   assert.throws(
-    () => {
-      micromark('a <a:b|> c.', {extensions: [syntax()]})
+    function () {
+      micromark('a <a:b|> c.', {extensions: [mdxJsx()]})
     },
     /Unexpected character `\|` \(U\+007C\) in local name, expected a name character such as letters, digits, `\$`, or `_`; whitespace before attributes; or the end of the tag/,
     'should crash on a nonconforming character in a local name'
   )
 
   assert.throws(
-    () => {
-      micromark('a <a..> c.', {extensions: [syntax()]})
+    function () {
+      micromark('a <a..> c.', {extensions: [mdxJsx()]})
     },
     /Unexpected character `\.` \(U\+002E\) before member name, expected a character that can start an attribute name, such as a letter, `\$`, or `_`; whitespace before attributes; or the end of the tag/,
     'should crash on a nonconforming character to start a member name'
   )
 
   assert.throws(
-    () => {
-      micromark('a <a.b,> c.', {extensions: [syntax()]})
+    function () {
+      micromark('a <a.b,> c.', {extensions: [mdxJsx()]})
     },
     /Unexpected character `,` \(U\+002C\) in member name, expected a name character such as letters, digits, `\$`, or `_`; whitespace before attributes; or the end of the tag/,
     'should crash on a nonconforming character in a member name'
   )
 
   assert.throws(
-    () => {
-      micromark('a <a:b .> c.', {extensions: [syntax()]})
+    function () {
+      micromark('a <a:b .> c.', {extensions: [mdxJsx()]})
     },
     /Unexpected character `\.` \(U\+002E\) after local name, expected a character that can start an attribute name, such as a letter, `\$`, or `_`; whitespace before attributes; or the end of the tag/,
     'should crash on a nonconforming character after a local name'
   )
 
   assert.throws(
-    () => {
-      micromark('a <a.b :> c.', {extensions: [syntax()]})
+    function () {
+      micromark('a <a.b :> c.', {extensions: [mdxJsx()]})
     },
     /Unexpected character `:` \(U\+003A\) after member name, expected a character that can start an attribute name, such as a letter, `\$`, or `_`; whitespace before attributes; or the end of the tag/,
     'should crash on a nonconforming character after a member name'
   )
 
   assert.throws(
-    () => {
-      micromark('a <a => c.', {extensions: [syntax()]})
+    function () {
+      micromark('a <a => c.', {extensions: [mdxJsx()]})
     },
     /Unexpected character `=` \(U\+003D\) after name, expected a character that can start an attribute name, such as a letter, `\$`, or `_`; whitespace before attributes; or the end of the tag/,
     'should crash on a nonconforming character after name'
@@ -492,7 +498,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('a <b {...props} {...rest}>c</b>.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a c.</p>',
@@ -501,7 +507,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('a <b {...{"a": "b"}}>c</b>.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a c.</p>',
@@ -510,7 +516,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('<a{...b}/>.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>.</p>',
@@ -519,7 +525,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('<a.b{...c}/>.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>.</p>',
@@ -528,7 +534,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('<a:b{...c}/>.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>.</p>',
@@ -537,7 +543,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('a <b c{...d}/>.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a .</p>',
@@ -546,7 +552,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('a <b c:d{...e}/>.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a .</p>',
@@ -555,7 +561,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('a <b a {...props} b>c</b>.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a c.</p>',
@@ -564,7 +570,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('a <b c     d="d"\t\tefg=\'e\'>c</b>.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a c.</p>',
@@ -572,24 +578,24 @@ test('text (complete)', () => {
   )
 
   assert.throws(
-    () => {
-      micromark('a <b {...p}~>c</b>.', {extensions: [syntax()]})
+    function () {
+      micromark('a <b {...p}~>c</b>.', {extensions: [mdxJsx()]})
     },
     /Unexpected character `~` \(U\+007E\) before attribute name, expected a character that can start an attribute name, such as a letter, `\$`, or `_`; whitespace before attributes; or the end of the tag/,
     'should crash on a nonconforming character before an attribute name'
   )
 
   assert.throws(
-    () => {
-      micromark('a <b {...', {extensions: [syntax()]})
+    function () {
+      micromark('a <b {...', {extensions: [mdxJsx()]})
     },
     /Unexpected end of file in expression, expected a corresponding closing brace for `{`/,
     'should crash on a missing closing brace in attribute expression'
   )
 
   assert.throws(
-    () => {
-      micromark('a <a b@> c.', {extensions: [syntax()]})
+    function () {
+      micromark('a <a b@> c.', {extensions: [mdxJsx()]})
     },
     /Unexpected character `@` \(U\+0040\) in attribute name, expected an attribute name character such as letters, digits, `\$`, or `_`; `=` to initialize a value; whitespace before attributes; or the end of the tag/,
     'should crash on a nonconforming character in attribute name'
@@ -597,7 +603,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('a <b xml :\tlang\n= "de-CH" foo:bar>c</b>.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a c.</p>',
@@ -606,7 +612,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('a <b a b : c d : e = "f" g/>.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a .</p>',
@@ -614,32 +620,32 @@ test('text (complete)', () => {
   )
 
   assert.throws(
-    () => {
-      micromark('a <a b 1> c.', {extensions: [syntax()]})
+    function () {
+      micromark('a <a b 1> c.', {extensions: [mdxJsx()]})
     },
     /Unexpected character `1` \(U\+0031\) after attribute name, expected a character that can start an attribute name, such as a letter, `\$`, or `_`; `=` to initialize a value; or the end of the tag/,
     'should crash on a nonconforming character after an attribute name'
   )
 
   assert.throws(
-    () => {
-      micromark('a <a b:#> c.', {extensions: [syntax()]})
+    function () {
+      micromark('a <a b:#> c.', {extensions: [mdxJsx()]})
     },
     /Unexpected character `#` \(U\+0023\) before local attribute name, expected a character that can start an attribute name, such as a letter, `\$`, or `_`/,
     'should crash on a nonconforming character to start a local attribute name'
   )
 
   assert.throws(
-    () => {
-      micromark('a <a b:c%> c.', {extensions: [syntax()]})
+    function () {
+      micromark('a <a b:c%> c.', {extensions: [mdxJsx()]})
     },
     /Unexpected character `%` \(U\+0025\) in local attribute name, expected an attribute name character such as letters, digits, `\$`, or `_`; `=` to initialize a value; whitespace before attributes; or the end of the tag/,
     'should crash on a nonconforming character in a local attribute name'
   )
 
   assert.throws(
-    () => {
-      micromark('a <a b:c ^> c.', {extensions: [syntax()]})
+    function () {
+      micromark('a <a b:c ^> c.', {extensions: [mdxJsx()]})
     },
     /Unexpected character `\^` \(U\+005E\) after local attribute name, expected a character that can start an attribute name, such as a letter, `\$`, or `_`; `=` to initialize a value; or the end of the tag/,
     'should crash on a nonconforming character after a local attribute name'
@@ -647,7 +653,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('a <b c={1 + 1}>c</b>.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a c.</p>',
@@ -656,7 +662,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('a <b c={1 + ({a: 1}).a}>c</b>.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a c.</p>',
@@ -664,48 +670,48 @@ test('text (complete)', () => {
   )
 
   assert.throws(
-    () => {
-      micromark('a <a b=``> c.', {extensions: [syntax()]})
+    function () {
+      micromark('a <a b=``> c.', {extensions: [mdxJsx()]})
     },
     /Unexpected character `` ` `` \(U\+0060\) before attribute value, expected a character that can start an attribute value, such as `"`, `'`, or `{`/,
     'should crash on a nonconforming character before an attribute value'
   )
 
   assert.throws(
-    () => {
-      micromark('a <a b=<c />> d.', {extensions: [syntax()]})
+    function () {
+      micromark('a <a b=<c />> d.', {extensions: [mdxJsx()]})
     },
     /Unexpected character `<` \(U\+003C\) before attribute value, expected a character that can start an attribute value, such as `"`, `'`, or `{` \(note: to use an element or fragment as a prop value in MDX, use `{<element \/>}`\)/,
     'should crash nicely on what might be a fragment, element as prop value'
   )
 
   assert.throws(
-    () => {
-      micromark('a <a b="> c.', {extensions: [syntax()]})
+    function () {
+      micromark('a <a b="> c.', {extensions: [mdxJsx()]})
     },
     /Unexpected end of file in attribute value, expected a corresponding closing quote `"`/,
     'should crash on a missing closing quote in double quoted attribute value'
   )
 
   assert.throws(
-    () => {
-      micromark("a <a b='> c.", {extensions: [syntax()]})
+    function () {
+      micromark("a <a b='> c.", {extensions: [mdxJsx()]})
     },
     /Unexpected end of file in attribute value, expected a corresponding closing quote `'`/,
     'should crash on a missing closing quote in single quoted attribute value'
   )
 
   assert.throws(
-    () => {
-      micromark('a <a b={> c.', {extensions: [syntax()]})
+    function () {
+      micromark('a <a b={> c.', {extensions: [mdxJsx()]})
     },
     /Unexpected end of file in expression, expected a corresponding closing brace for `{`/,
     'should crash on a missing closing brace in an attribute value expression'
   )
 
   assert.throws(
-    () => {
-      micromark('a <a b=""*> c.', {extensions: [syntax()]})
+    function () {
+      micromark('a <a b=""*> c.', {extensions: [mdxJsx()]})
     },
     /Unexpected character `\*` \(U\+002A\) before attribute name, expected a character that can start an attribute name, such as a letter, `\$`, or `_`; whitespace before attributes; or the end of the tag/,
     'should crash on a nonconforming character after an attribute value'
@@ -713,7 +719,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('<a b=""c/>.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>.</p>',
@@ -722,7 +728,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('<a{...b}c/>.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>.</p>',
@@ -730,56 +736,56 @@ test('text (complete)', () => {
   )
 
   assert.throws(
-    () => {
-      micromark('a <a/b> c.', {extensions: [syntax()]})
+    function () {
+      micromark('a <a/b> c.', {extensions: [mdxJsx()]})
     },
     /Unexpected character `b` \(U\+0062\) after self-closing slash, expected `>` to end the tag/,
     'should crash on a nonconforming character after a self-closing slash'
   )
 
   assert.equal(
-    micromark('<a/ \t>.', {extensions: [syntax()], htmlExtensions: [html]}),
+    micromark('<a/ \t>.', {extensions: [mdxJsx()], htmlExtensions: [html]}),
     '<p>.</p>',
     'should support whitespace directly after closing slash'
   )
 
-  assert.doesNotThrow(() => {
-    micromark('a > c.', {extensions: [syntax()], htmlExtensions: [html]})
+  assert.doesNotThrow(function () {
+    micromark('a > c.', {extensions: [mdxJsx()], htmlExtensions: [html]})
   }, 'should *not* crash on closing angle in text')
 
-  assert.doesNotThrow(() => {
+  assert.doesNotThrow(function () {
     micromark('a <>`<`</> c.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     })
   }, 'should *not* crash on opening angle in tick code in an element')
 
-  assert.doesNotThrow(() => {
+  assert.doesNotThrow(function () {
     micromark('a <>`` ``` ``</>', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     })
   }, 'should *not* crash on ticks in tick code in an element')
 
   assert.equal(
-    micromark('a </> c.', {extensions: [syntax()], htmlExtensions: [html]}),
+    micromark('a </> c.', {extensions: [mdxJsx()], htmlExtensions: [html]}),
     '<p>a  c.</p>',
     'should support a closing tag w/o open elements'
   )
 
   assert.equal(
-    micromark('a <></b>', {extensions: [syntax()], htmlExtensions: [html]}),
+    micromark('a <></b>', {extensions: [mdxJsx()], htmlExtensions: [html]}),
     '<p>a </p>',
     'should support mismatched tags (1)'
   )
   assert.equal(
-    micromark('a <b></>', {extensions: [syntax()], htmlExtensions: [html]}),
+    micromark('a <b></>', {extensions: [mdxJsx()], htmlExtensions: [html]}),
     '<p>a </p>',
     'should support mismatched tags (2)'
   )
   assert.equal(
     micromark('a <a.b></a>', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a </p>',
@@ -787,7 +793,7 @@ test('text (complete)', () => {
   )
   assert.equal(
     micromark('a <a></a.b>', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a </p>',
@@ -795,7 +801,7 @@ test('text (complete)', () => {
   )
   assert.equal(
     micromark('a <a.b></a.c>', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a </p>',
@@ -803,7 +809,7 @@ test('text (complete)', () => {
   )
   assert.equal(
     micromark('a <a:b></a>', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a </p>',
@@ -811,7 +817,7 @@ test('text (complete)', () => {
   )
   assert.equal(
     micromark('a <a></a:b>', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a </p>',
@@ -819,7 +825,7 @@ test('text (complete)', () => {
   )
   assert.equal(
     micromark('a <a:b></a:c>', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a </p>',
@@ -827,7 +833,7 @@ test('text (complete)', () => {
   )
   assert.equal(
     micromark('a <a:b></a.b>', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a </p>',
@@ -836,7 +842,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('a <a>b</a/>', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a b</p>',
@@ -845,7 +851,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('a <a>b</a b>', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a b</p>',
@@ -854,7 +860,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('a <>b <>c</> d</>.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a b c d.</p>',
@@ -864,7 +870,7 @@ test('text (complete)', () => {
   assert.equal(
     micromark(
       '<x y="Character references can be used: &quot;, &apos;, &lt;, &gt;, &#x7B;, and &#x7D;, they can be named, decimal, or hexadecimal: &copy; &#8800; &#x1D306;" />.',
-      {extensions: [syntax()], htmlExtensions: [html]}
+      {extensions: [mdxJsx()], htmlExtensions: [html]}
     ),
     '<p>.</p>',
     'should support character references in attribute values'
@@ -873,27 +879,27 @@ test('text (complete)', () => {
   assert.equal(
     micromark(
       '<x>Character references can be used: &quot;, &apos;, &lt;, &gt;, &#x7B;, and &#x7D;, they can be named, decimal, or hexadecimal: &copy; &#8800; &#x1D306;</x>.',
-      {extensions: [syntax()], htmlExtensions: [html]}
+      {extensions: [mdxJsx()], htmlExtensions: [html]}
     ),
     "<p>Character references can be used: &quot;, ', &lt;, &gt;, {, and }, they can be named, decimal, or hexadecimal: © ≠ 팆.</p>",
     'should support character references in text'
   )
 
   assert.equal(
-    micromark('<x />.', {extensions: [syntax()], htmlExtensions: [html]}),
+    micromark('<x />.', {extensions: [mdxJsx()], htmlExtensions: [html]}),
     '<p>.</p>',
     'should support as text if the closing tag is not the last thing'
   )
 
   assert.equal(
-    micromark('a <x />', {extensions: [syntax()], htmlExtensions: [html]}),
+    micromark('a <x />', {extensions: [mdxJsx()], htmlExtensions: [html]}),
     '<p>a </p>',
     'should support as text if the opening is not the first thing'
   )
 
   assert.equal(
     micromark('a *open <b> close* </b> c.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a <em>open  close</em>  c.</p>',
@@ -902,7 +908,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('a **open <b> close** </b> c.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a <strong>open  close</strong>  c.</p>',
@@ -911,7 +917,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('a [open <b> close](c) </b> d.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a <a href="c">open  close</a>  d.</p>',
@@ -920,7 +926,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('a ![open <b> close](c) </b> d.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>a <img src="c" alt="open  close" />  d.</p>',
@@ -929,7 +935,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('> a <b>\n> c </b> d.', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<blockquote>\n<p>a c  d.</p>\n</blockquote>',
@@ -938,7 +944,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('> a <b c="d\ne" /> f', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<blockquote>\n<p>a  f</p>\n</blockquote>',
@@ -947,7 +953,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('> a <b c={d\ne} /> f', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<blockquote>\n<p>a  f</p>\n</blockquote>',
@@ -956,7 +962,7 @@ test('text (complete)', () => {
 
   assert.equal(
     micromark('> a <b {c\nd} /> e', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<blockquote>\n<p>a  e</p>\n</blockquote>',
@@ -964,16 +970,16 @@ test('text (complete)', () => {
   )
 
   assert.equal(
-    micromark('1 < 3', {extensions: [syntax()], htmlExtensions: [html]}),
+    micromark('1 < 3', {extensions: [mdxJsx()], htmlExtensions: [html]}),
     '<p>1 &lt; 3</p>',
     'should allow `<` followed by markdown whitespace as text in markdown'
   )
 })
 
-test('flow (agnostic)', () => {
+test('flow (agnostic)', function () {
   assert.equal(
     micromark('<a />', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '',
@@ -982,7 +988,7 @@ test('flow (agnostic)', () => {
 
   assert.equal(
     micromark('<a></a>', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '',
@@ -991,7 +997,7 @@ test('flow (agnostic)', () => {
 
   assert.equal(
     micromark('<a>\nb\n</a>', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>b</p>\n',
@@ -1000,7 +1006,7 @@ test('flow (agnostic)', () => {
 
   assert.equal(
     micromark('<a>\n- b\n</a>', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<ul>\n<li>b</li>\n</ul>\n',
@@ -1009,7 +1015,7 @@ test('flow (agnostic)', () => {
 
   assert.equal(
     micromark('<a b c:d e="" f={/* g */} {...h} />', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '',
@@ -1019,16 +1025,16 @@ test('flow (agnostic)', () => {
 
 // Flow is mostly the same as `text`, so we only test the relevant
 // differences.
-test('flow (essence)', () => {
+test('flow (essence)', function () {
   assert.equal(
-    micromark('<a />', {extensions: [syntax()], htmlExtensions: [html]}),
+    micromark('<a />', {extensions: [mdxJsx()], htmlExtensions: [html]}),
     '',
     'should support an element'
   )
 
   assert.equal(
     micromark('<a>\n- b\n</a>', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<ul>\n<li>b</li>\n</ul>\n',
@@ -1037,7 +1043,7 @@ test('flow (essence)', () => {
 
   assert.equal(
     micromark('<x\n  y\n>  \nb\n  </x>', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>b</p>\n',
@@ -1046,7 +1052,7 @@ test('flow (essence)', () => {
 
   assert.equal(
     micromark('<a>  \nb\n  </a>', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>b</p>\n',
@@ -1055,7 +1061,7 @@ test('flow (essence)', () => {
 
   assert.equal(
     micromark('<a> <b>\t\nc\n  </b> </a>', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<p>c</p>\n',
@@ -1063,16 +1069,16 @@ test('flow (essence)', () => {
   )
 
   assert.throws(
-    () => {
-      micromark('> <X\n/>', {extensions: [syntax()]})
+    function () {
+      micromark('> <X\n/>', {extensions: [mdxJsx()]})
     },
     /Unexpected lazy line in container/,
     'should not support lazy flow (1)'
   )
 
   assert.throws(
-    () => {
-      micromark('> a\n> <X\n/>', {extensions: [syntax()]})
+    function () {
+      micromark('> a\n> <X\n/>', {extensions: [mdxJsx()]})
     },
     /Unexpected lazy line in container/,
     'should not support lazy flow (2)'
@@ -1080,7 +1086,7 @@ test('flow (essence)', () => {
 
   assert.deepEqual(
     micromark('> a\n<X />', {
-      extensions: [syntax()],
+      extensions: [mdxJsx()],
       htmlExtensions: [html]
     }),
     '<blockquote>\n<p>a</p>\n</blockquote>\n',
