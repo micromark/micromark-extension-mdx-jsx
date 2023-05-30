@@ -42,6 +42,7 @@
   },
   "dependencies": {
     "@types/acorn": "^4.0.0",
+    "@types/estree": "^1.0.0",
     "estree-util-is-identifier-name": "^2.0.0",
     "micromark-factory-mdx-expression": "^1.0.0",
     "micromark-factory-space": "^1.0.0",

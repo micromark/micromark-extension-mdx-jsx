@@ -1149,8 +1149,6 @@ test('should use correct positional info when tabs are used', function () {
    * @type {Handle}
    */
   function expression(token) {
-    assert('estree' in token)
-    // @ts-expect-error: fine.
     program = token.estree
   }
 })
@@ -1220,8 +1218,6 @@ test('should use correct positional when there are virtual spaces due to a block
    * @type {Handle}
    */
   function expression(token) {
-    assert('estree' in token)
-    // @ts-expect-error: fine.
     program = token.estree
   }
 })
@@ -1252,8 +1248,6 @@ test('should keep the correct number of spaces in a blockquote', function () {
    * @type {Handle}
    */
   function expression(token) {
-    assert('estree' in token)
-    // @ts-expect-error: fine.
     program = token.estree
   }
 })

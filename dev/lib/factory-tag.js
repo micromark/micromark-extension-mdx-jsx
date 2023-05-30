@@ -5,6 +5,7 @@
  * @typedef {import('micromark-util-types').Effects} Effects
  * @typedef {import('micromark-util-types').State} State
  * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
+ * @typedef {import('micromark-util-types').TokenType} TokenType
  */
 
 import {start as idStart, cont as idCont} from 'estree-util-is-identifier-name'
@@ -30,31 +31,31 @@ import {VFileMessage} from 'vfile-message'
  * @param {AcornOptions | undefined} acornOptions
  * @param {boolean | undefined} addResult
  * @param {boolean | undefined} allowLazy
- * @param {string} tagType
- * @param {string} tagMarkerType
- * @param {string} tagClosingMarkerType
- * @param {string} tagSelfClosingMarker
- * @param {string} tagNameType
- * @param {string} tagNamePrimaryType
- * @param {string} tagNameMemberMarkerType
- * @param {string} tagNameMemberType
- * @param {string} tagNamePrefixMarkerType
- * @param {string} tagNameLocalType
- * @param {string} tagExpressionAttributeType
- * @param {string} tagExpressionAttributeMarkerType
- * @param {string} tagExpressionAttributeValueType
- * @param {string} tagAttributeType
- * @param {string} tagAttributeNameType
- * @param {string} tagAttributeNamePrimaryType
- * @param {string} tagAttributeNamePrefixMarkerType
- * @param {string} tagAttributeNameLocalType
- * @param {string} tagAttributeInitializerMarkerType
- * @param {string} tagAttributeValueLiteralType
- * @param {string} tagAttributeValueLiteralMarkerType
- * @param {string} tagAttributeValueLiteralValueType
- * @param {string} tagAttributeValueExpressionType
- * @param {string} tagAttributeValueExpressionMarkerType
- * @param {string} tagAttributeValueExpressionValueType
+ * @param {TokenType} tagType
+ * @param {TokenType} tagMarkerType
+ * @param {TokenType} tagClosingMarkerType
+ * @param {TokenType} tagSelfClosingMarker
+ * @param {TokenType} tagNameType
+ * @param {TokenType} tagNamePrimaryType
+ * @param {TokenType} tagNameMemberMarkerType
+ * @param {TokenType} tagNameMemberType
+ * @param {TokenType} tagNamePrefixMarkerType
+ * @param {TokenType} tagNameLocalType
+ * @param {TokenType} tagExpressionAttributeType
+ * @param {TokenType} tagExpressionAttributeMarkerType
+ * @param {TokenType} tagExpressionAttributeValueType
+ * @param {TokenType} tagAttributeType
+ * @param {TokenType} tagAttributeNameType
+ * @param {TokenType} tagAttributeNamePrimaryType
+ * @param {TokenType} tagAttributeNamePrefixMarkerType
+ * @param {TokenType} tagAttributeNameLocalType
+ * @param {TokenType} tagAttributeInitializerMarkerType
+ * @param {TokenType} tagAttributeValueLiteralType
+ * @param {TokenType} tagAttributeValueLiteralMarkerType
+ * @param {TokenType} tagAttributeValueLiteralValueType
+ * @param {TokenType} tagAttributeValueExpressionType
+ * @param {TokenType} tagAttributeValueExpressionMarkerType
+ * @param {TokenType} tagAttributeValueExpressionValueType
  */
 // eslint-disable-next-line max-params
 export function factoryTag(
