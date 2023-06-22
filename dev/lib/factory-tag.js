@@ -8,6 +8,7 @@
  * @typedef {import('micromark-util-types').TokenType} TokenType
  */
 
+import {ok as assert} from 'devlop'
 import {cont as idCont, start as idStart} from 'estree-util-is-identifier-name'
 import {factoryMdxExpression} from 'micromark-factory-mdx-expression'
 import {
@@ -17,7 +18,6 @@ import {
   unicodeWhitespace
 } from 'micromark-util-character'
 import {codes, constants, types} from 'micromark-util-symbol'
-import {ok as assert} from 'uvu/assert'
 import {VFileMessage} from 'vfile-message'
 
 /**
