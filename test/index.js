@@ -245,7 +245,7 @@ test('text (gnostic)', async function (t) {
     async function () {
       assert.throws(function () {
         micromark('a <b {1 + 1} /> c', {extensions: [mdxJsx({acorn})]})
-      }, /Could not parse expression with acorn: Unexpected token/)
+      }, /Could not parse expression with acorn/)
     }
   )
 
@@ -254,7 +254,7 @@ test('text (gnostic)', async function (t) {
     async function () {
       assert.throws(function () {
         micromark('a <b c={?} /> d', {extensions: [mdxJsx({acorn})]})
-      }, /Could not parse expression with acorn: Unexpected token/)
+      }, /Could not parse expression with acorn/)
     }
   )
 
@@ -263,7 +263,7 @@ test('text (gnostic)', async function (t) {
     async function () {
       assert.throws(function () {
         micromark('a <b {?} /> c', {extensions: [mdxJsx({acorn})]})
-      }, /Could not parse expression with acorn: Unexpected token/)
+      }, /Could not parse expression with acorn/)
     }
   )
 

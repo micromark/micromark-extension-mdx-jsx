@@ -17,7 +17,7 @@
  *   (default: `false`).
  */
 
-import {codes} from 'micromark-util-symbol/codes.js'
+import {codes} from 'micromark-util-symbol'
 import {jsxText} from './jsx-text.js'
 import {jsxFlow} from './jsx-flow.js'
 
