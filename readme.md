@@ -24,6 +24,7 @@
 *   [Errors](#errors)
     *   [Unexpected end of file $at, expected $expect](#unexpected-end-of-file-at-expected-expect)
     *   [Unexpected character $at, expected $expect](#unexpected-character-at-expected-expect)
+    *   [Unexpected lazy line in container, expected line to be…](#unexpected-lazy-line-in-container-expected-line-to-be)
 *   [Tokens](#tokens)
 *   [Types](#types)
 *   [Compatibility](#compatibility)
@@ -155,7 +156,7 @@ JavaScript comments in JSX are not supported.
 
 Incorrect:
 
-```jsx
+```mdx-invalid
 <hi/*comment!*//>
 <hello// comment!
 />
@@ -163,7 +164,7 @@ Incorrect:
 
 Correct:
 
-```jsx
+```mdx
 <hi/>
 <hello
 />
@@ -179,14 +180,14 @@ would work.
 
 Incorrect:
 
-```jsx
+```mdx-invalid
 <welcome name=<>Venus</> />
 <welcome name=<span>Pluto</span> />
 ```
 
 Correct:
 
-```jsx
+```mdx
 <welcome name='Mars' />
 <welcome name={<span>Jupiter</span>} />
 ```
@@ -299,7 +300,7 @@ closed (source: `micromark-extension-mdx-jsx`, rule id: `unexpected-eof`).
 
 Some examples are:
 
-```markdown
+```mdx-invalid
 <
 </
 <a
@@ -321,7 +322,7 @@ This error occurs for many different reasons if an unexpected character is seen
 
 Some examples are:
 
-```markdown
+```mdx-invalid
 <.>
 </.>
 <a?>
@@ -331,6 +332,17 @@ Some examples are:
 <a b:1>
 <a b=>
 <a/->
+```
+
+### Unexpected lazy line in container, expected line to be…
+
+This error occurs if a `<` was seen in a container which then has lazy content
+(source: `micromark-extension-mdx-jsx`, rule id: `unexpected-lazy`).
+For example:
+
+```mdx-invalid
+> <a
+b>
 ```
 
 ## Tokens

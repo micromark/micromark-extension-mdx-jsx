@@ -20,6 +20,8 @@ import {
 import {codes, constants, types} from 'micromark-util-symbol'
 import {VFileMessage} from 'vfile-message'
 
+const trouble = 'https://github.com/micromark/micromark-extension-mdx-jsx'
+
 /**
  * @this {TokenizeContext}
  * @param {Effects} effects
@@ -1043,11 +1045,14 @@ export function factoryTag(
   function esWhitespaceEolAfter(code) {
     // Lazy continuation in a flow tag is a syntax error.
     if (!allowLazy && self.parser.lazy[self.now().line]) {
-      throw new VFileMessage(
+      const error = new VFileMessage(
         'Unexpected lazy line in container, expected line to be prefixed with `>` when in a block quote, whitespace when in a list, etc',
         self.now(),
-        'micromark-extension-mdx-jsx:unexpected-eof'
+        'micromark-extension-mdx-jsx:unexpected-lazy'
       )
+      error.url =
+        trouble + '#unexpected-lazy-line-in-container-expected-line-to-be'
+      throw error
     }
 
     return esWhitespaceStart(code)
@@ -1061,7 +1066,7 @@ export function factoryTag(
    * @param {string} expect
    */
   function crash(code, at, expect) {
-    throw new VFileMessage(
+    const error = new VFileMessage(
       'Unexpected ' +
         (code === codes.eof
           ? 'end of file'
@@ -1080,6 +1085,12 @@ export function factoryTag(
       'micromark-extension-mdx-jsx:unexpected-' +
         (code === codes.eof ? 'eof' : 'character')
     )
+    error.url =
+      trouble +
+      (code === codes.eof
+        ? '#unexpected-end-of-file-at-expected-expect'
+        : '#unexpected-character-at-expected-expect')
+    throw error
   }
 }
 
