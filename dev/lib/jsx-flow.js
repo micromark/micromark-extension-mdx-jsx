@@ -16,10 +16,10 @@
  *   Whether to add `estree` fields to tokens with results from acorn.
  */
 
+import {ok as assert} from 'devlop'
 import {markdownLineEnding, markdownSpace} from 'micromark-util-character'
 import {factorySpace} from 'micromark-factory-space'
 import {codes, types} from 'micromark-util-symbol'
-import {ok as assert} from 'uvu/assert'
 import {factoryTag} from './factory-tag.js'
 
 /**
