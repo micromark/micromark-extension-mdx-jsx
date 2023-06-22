@@ -7,6 +7,15 @@
  * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
  */
 
+/**
+ * @typedef Options
+ *   Configuration.
+ * @property {AcornOptions | undefined} acornOptions
+ *   Acorn options.
+ * @property {boolean | undefined} addResult
+ *   Whether to add `estree` fields to tokens with results from acorn.
+ */
+
 import {markdownLineEnding, markdownSpace} from 'micromark-util-character'
 import {factorySpace} from 'micromark-factory-space'
 import {codes} from 'micromark-util-symbol/codes.js'
@@ -19,14 +28,12 @@ import {factoryTag} from './factory-tag.js'
  *
  * @param {Acorn | undefined} acorn
  *   Acorn parser to use (optional).
- * @param {AcornOptions | undefined} acornOptions
- *   Configuration for acorn.
- * @param {boolean | undefined} addResult
- *   Whether to add `estree` fields to tokens with results from acorn.
+ * @param {Options} options
+ *   Configuration.
  * @returns {Construct}
  *   Construct.
  */
-export function jsxFlow(acorn, acornOptions, addResult) {
+export function jsxFlow(acorn, options) {
   return {tokenize: tokenizeJsxFlow, concrete: true}
 
   /**
@@ -79,8 +86,8 @@ export function jsxFlow(acorn, acornOptions, addResult) {
         after,
         nok,
         acorn,
-        acornOptions,
-        addResult,
+        options.acornOptions,
+        options.addResult,
         false,
         'mdxJsxFlowTag',
         'mdxJsxFlowTagMarker',

@@ -8,7 +8,7 @@
  * @typedef {import('micromark-util-types').TokenType} TokenType
  */
 
-import {start as idStart, cont as idCont} from 'estree-util-is-identifier-name'
+import {cont as idCont, start as idStart} from 'estree-util-is-identifier-name'
 import {factoryMdxExpression} from 'micromark-factory-mdx-expression'
 import {
   markdownLineEnding,

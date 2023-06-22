@@ -11,11 +11,10 @@
  *   Acorn parser to use (optional).
  * @property {AcornOptions | null | undefined} [acornOptions]
  *   Configuration for acorn (default: `{ecmaVersion: 2020, locations: true,
- *   sourceType: 'module'}`).
- *
- *   All fields except `locations` can be set.
+ *   sourceType: 'module'}`); all fields except `locations` can be set.
  * @property {boolean | null | undefined} [addResult=false]
- *   Whether to add `estree` fields to tokens with results from acorn.
+ *   Whether to add `estree` fields to tokens with results from acorn
+ *   (default: `false`).
  */
 
 import {codes} from 'micromark-util-symbol/codes.js'
@@ -55,18 +54,16 @@ export function mdxJsx(options) {
 
   return {
     flow: {
-      [codes.lessThan]: jsxFlow(
-        acorn || undefined,
+      [codes.lessThan]: jsxFlow(acorn || undefined, {
         acornOptions,
-        settings.addResult || false
-      )
+        addResult: settings.addResult || undefined
+      })
     },
     text: {
-      [codes.lessThan]: jsxText(
-        acorn || undefined,
+      [codes.lessThan]: jsxText(acorn || undefined, {
         acornOptions,
-        settings.addResult || false
-      )
+        addResult: settings.addResult || undefined
+      })
     }
   }
 }
