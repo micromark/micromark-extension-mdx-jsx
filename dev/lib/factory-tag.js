@@ -171,7 +171,7 @@ export function factoryTag(
     }
 
     // Start of a name.
-    if (code !== codes.eof && idStart(code)) {
+    if (code !== codes.eof && code >= 0 && idStart(code)) {
       effects.enter(tagNameType)
       effects.enter(tagNamePrimaryType)
       effects.consume(code)
@@ -207,7 +207,7 @@ export function factoryTag(
     }
 
     // Start of a closing tag name.
-    if (code !== codes.eof && idStart(code)) {
+    if (code !== codes.eof && code >= 0 && idStart(code)) {
       effects.enter(tagNameType)
       effects.enter(tagNamePrimaryType)
       effects.consume(code)
@@ -236,7 +236,7 @@ export function factoryTag(
    */
   function primaryName(code) {
     // Continuation of name: remain.
-    if (code === codes.dash || (code !== codes.eof && idCont(code))) {
+    if (code !== codes.eof && code >= 0 && idCont(code, {jsx: true})) {
       effects.consume(code)
       return primaryName
     }
@@ -302,7 +302,7 @@ export function factoryTag(
       code === codes.slash ||
       code === codes.greaterThan ||
       code === codes.leftCurlyBrace ||
-      (code !== codes.eof && idStart(code))
+      (code !== codes.eof && code >= 0 && idStart(code))
     ) {
       effects.exit(tagNameType)
       return attributeBefore(code)
@@ -327,7 +327,7 @@ export function factoryTag(
    */
   function memberNameBefore(code) {
     // Start of a member name.
-    if (code !== codes.eof && idStart(code)) {
+    if (code !== codes.eof && code >= 0 && idStart(code)) {
       effects.enter(tagNameMemberType)
       effects.consume(code)
       return memberName
@@ -352,7 +352,7 @@ export function factoryTag(
    */
   function memberName(code) {
     // Continuation of name: remain.
-    if (code === codes.dash || (code !== codes.eof && idCont(code))) {
+    if (code !== codes.eof && code >= 0 && idCont(code, {jsx: true})) {
       effects.consume(code)
       return memberName
     }
@@ -409,7 +409,7 @@ export function factoryTag(
       code === codes.slash ||
       code === codes.greaterThan ||
       code === codes.leftCurlyBrace ||
-      (code !== codes.eof && idStart(code))
+      (code !== codes.eof && code >= 0 && idStart(code))
     ) {
       effects.exit(tagNameType)
       return attributeBefore(code)
@@ -434,7 +434,7 @@ export function factoryTag(
    */
   function localNameBefore(code) {
     // Start of a local name.
-    if (code !== codes.eof && idStart(code)) {
+    if (code !== codes.eof && code >= 0 && idStart(code)) {
       effects.enter(tagNameLocalType)
       effects.consume(code)
       return localName
@@ -465,7 +465,7 @@ export function factoryTag(
    */
   function localName(code) {
     // Continuation of name: remain.
-    if (code === codes.dash || (code !== codes.eof && idCont(code))) {
+    if (code !== codes.eof && code >= 0 && idCont(code, {jsx: true})) {
       effects.consume(code)
       return localName
     }
@@ -511,7 +511,7 @@ export function factoryTag(
       code === codes.slash ||
       code === codes.greaterThan ||
       code === codes.leftCurlyBrace ||
-      (code !== codes.eof && idStart(code))
+      (code !== codes.eof && code >= 0 && idStart(code))
     ) {
       effects.exit(tagNameType)
       return attributeBefore(code)
@@ -574,7 +574,7 @@ export function factoryTag(
     }
 
     // Start of an attribute name.
-    if (code !== codes.eof && idStart(code)) {
+    if (code !== codes.eof && code >= 0 && idStart(code)) {
       effects.enter(tagAttributeType)
       effects.enter(tagAttributeNameType)
       effects.enter(tagAttributeNamePrimaryType)
@@ -620,7 +620,7 @@ export function factoryTag(
    */
   function attributePrimaryName(code) {
     // Continuation of name: remain.
-    if (code === codes.dash || (code !== codes.eof && idCont(code))) {
+    if (code !== codes.eof && code >= 0 && idCont(code, {jsx: true})) {
       effects.consume(code)
       return attributePrimaryName
     }
@@ -688,7 +688,7 @@ export function factoryTag(
       code === codes.leftCurlyBrace ||
       markdownLineEndingOrSpace(code) ||
       unicodeWhitespace(code) ||
-      (code !== codes.eof && idStart(code))
+      (code !== codes.eof && code >= 0 && idStart(code))
     ) {
       effects.exit(tagAttributeNameType)
       effects.exit(tagAttributeType)
@@ -715,7 +715,7 @@ export function factoryTag(
    */
   function attributeLocalNameBefore(code) {
     // Start of a local name.
-    if (code !== codes.eof && idStart(code)) {
+    if (code !== codes.eof && code >= 0 && idStart(code)) {
       effects.enter(tagAttributeNameLocalType)
       effects.consume(code)
       return attributeLocalName
@@ -742,7 +742,7 @@ export function factoryTag(
    */
   function attributeLocalName(code) {
     // Continuation of name: remain.
-    if (code === codes.dash || (code !== codes.eof && idCont(code))) {
+    if (code !== codes.eof && code >= 0 && idCont(code, {jsx: true})) {
       effects.consume(code)
       return attributeLocalName
     }
@@ -796,7 +796,7 @@ export function factoryTag(
       code === codes.slash ||
       code === codes.greaterThan ||
       code === codes.leftCurlyBrace ||
-      (code !== codes.eof && idStart(code))
+      (code !== codes.eof && code >= 0 && idStart(code))
     ) {
       effects.exit(tagAttributeType)
       return attributeBefore(code)
