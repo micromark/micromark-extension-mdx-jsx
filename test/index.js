@@ -13,6 +13,7 @@ import acornJsx from 'acorn-jsx'
 import {visit} from 'estree-util-visit'
 import {micromark} from 'micromark'
 import {mdxJsx} from 'micromark-extension-mdx-jsx'
+import {mdxExpression} from 'micromark-extension-mdx-expression'
 
 const acorn = Parser.extend(acornJsx())
 
@@ -1522,6 +1523,195 @@ test('indent', async function (t) {
       }
     }
   )
+})
+
+test('interleaving w/ expressions', async function (t) {
+  await t.test(
+    'should support tags and expressions (unaware)',
+    async function () {
+      assert.deepEqual(
+        micromark('<div>\n{1}\n</div>', {
+          extensions: [mdxExpression(), mdxJsx()],
+          htmlExtensions: [html]
+        }),
+        '\n'
+      )
+    }
+  )
+
+  await t.test(
+    'should support tags and expressions (aware)',
+    async function () {
+      assert.deepEqual(
+        micromark("<div>\n{'}'}\n</div>", {
+          extensions: [mdxExpression({acorn}), mdxJsx({acorn})],
+          htmlExtensions: [html]
+        }),
+        '\n'
+      )
+    }
+  )
+
+  await t.test(
+    'should support tags and expressions with text before (text)',
+    async function () {
+      assert.deepEqual(
+        micromark('x<em>{1}</em>', {
+          extensions: [mdxExpression({acorn}), mdxJsx({acorn})],
+          htmlExtensions: [html]
+        }),
+        '<p>x</p>'
+      )
+    }
+  )
+
+  await t.test(
+    'should support tags and expressions with text between, early (text)',
+    async function () {
+      assert.deepEqual(
+        micromark('<em>x{1}</em>', {
+          extensions: [mdxExpression({acorn}), mdxJsx({acorn})],
+          htmlExtensions: [html]
+        }),
+        '<p>x</p>'
+      )
+    }
+  )
+
+  await t.test(
+    'should support tags and expressions with text between, late (text)',
+    async function () {
+      assert.deepEqual(
+        micromark('<em>{1}x</em>', {
+          extensions: [mdxExpression({acorn}), mdxJsx({acorn})],
+          htmlExtensions: [html]
+        }),
+        '<p>x</p>'
+      )
+    }
+  )
+
+  await t.test(
+    'should support tags and expressions with text after (text)',
+    async function () {
+      assert.deepEqual(
+        micromark('<em>{1}</em>x', {
+          extensions: [mdxExpression({acorn}), mdxJsx({acorn})],
+          htmlExtensions: [html]
+        }),
+        '<p>x</p>'
+      )
+    }
+  )
+
+  await t.test(
+    'should support a tag and then an expression (flow)',
+    async function () {
+      assert.deepEqual(
+        micromark('<x/>{1}', {
+          extensions: [mdxExpression({acorn}), mdxJsx({acorn})],
+          htmlExtensions: [html]
+        }),
+        ''
+      )
+    }
+  )
+
+  await t.test(
+    'should support a tag, an expression, then text (text)',
+    async function () {
+      assert.deepEqual(
+        micromark('<x/>{1}x', {
+          extensions: [mdxExpression({acorn}), mdxJsx({acorn})],
+          htmlExtensions: [html]
+        }),
+        '<p>x</p>'
+      )
+    }
+  )
+
+  await t.test(
+    'should support text, a tag, then an expression (text)',
+    async function () {
+      assert.deepEqual(
+        micromark('x<x/>{1}', {
+          extensions: [mdxExpression({acorn}), mdxJsx({acorn})],
+          htmlExtensions: [html]
+        }),
+        '<p>x</p>'
+      )
+    }
+  )
+
+  await t.test(
+    'should support an expression and then a tag (flow)',
+    async function () {
+      assert.deepEqual(
+        micromark('{1}<x/>', {
+          extensions: [mdxExpression({acorn}), mdxJsx({acorn})],
+          htmlExtensions: [html]
+        }),
+        ''
+      )
+    }
+  )
+
+  await t.test(
+    'should support an expression, a tag, then text (text)',
+    async function () {
+      assert.deepEqual(
+        micromark('{1}<x/>x', {
+          extensions: [mdxExpression({acorn}), mdxJsx({acorn})],
+          htmlExtensions: [html]
+        }),
+        '<p>x</p>'
+      )
+    }
+  )
+
+  await t.test(
+    'should support text, an expression, then a tag (text)',
+    async function () {
+      assert.deepEqual(
+        micromark('x{1}<x/>', {
+          extensions: [mdxExpression({acorn}), mdxJsx({acorn})],
+          htmlExtensions: [html]
+        }),
+        '<p>x</p>'
+      )
+    }
+  )
+
+  await t.test(
+    'should nicely interleaf (micromark/micromark-extension-mdx-jsx#9)',
+    async function () {
+      assert.equal(
+        micromark("<x>{[\n'',\n{c:''}\n]}</x>", {
+          extensions: [mdxExpression({acorn}), mdxJsx({acorn})],
+          htmlExtensions: [html]
+        }),
+        '\n\n'
+      )
+    }
+  )
+
+  await t.test('should nicely interleaf (mdx-js/mdx#1945)', async function () {
+    assert.equal(
+      micromark(
+        `
+<style>{\`
+  .foo {}
+  .bar {}
+\`}</style>
+    `,
+        {
+          extensions: [mdxExpression({acorn}), mdxJsx({acorn})],
+          htmlExtensions: [html]
+        }
+      ),
+      '\n\n'
+    )
+  })
 })
 
 /**

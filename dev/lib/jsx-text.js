@@ -28,7 +28,7 @@ import {factoryTag} from './factory-tag.js'
  *   Construct.
  */
 export function jsxText(acorn, options) {
-  return {tokenize: tokenizeJsxText}
+  return {name: 'mdxJsxTextTag', tokenize: tokenizeJsxText}
 
   /**
    * MDX JSX (text).
