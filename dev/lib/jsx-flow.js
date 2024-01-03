@@ -2,6 +2,7 @@
  * @typedef {import('micromark-factory-mdx-expression').Acorn} Acorn
  * @typedef {import('micromark-factory-mdx-expression').AcornOptions} AcornOptions
  * @typedef {import('micromark-util-types').Construct} Construct
+ * @typedef {import('micromark-util-types').ConstructRecord} ConstructRecord
  * @typedef {import('micromark-util-types').State} State
  * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
  * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
@@ -52,6 +53,35 @@ export function jsxFlow(acorn, options) {
    */
   function tokenizeJsxFlow(effects, ok, nok) {
     const self = this
+
+    /**
+     * Search for a construct.
+     * @param {ConstructRecord[string]} where
+     * @param {string} name
+     * @returns {Construct | undefined}
+     */
+    function resolveConstruct(where, name) {
+      return [where].flat().find((d) => d?.name === name);
+    }
+
+    // We want to allow expressions directly after tags.
+    // See <https://github.com/micromark/micromark-extension-mdx-expression/blob/d5d92b9/packages/micromark-extension-mdx-expression/dev/lib/syntax.js#L183>
+    // for more info.
+    const leftBraceValue = self.parser.constructs.flow[codes.leftCurlyBrace]
+    /* c8 ignore next 5 -- always a list when normalized. */
+    const constructs = Array.isArray(leftBraceValue)
+      ? leftBraceValue
+      : leftBraceValue
+        ? [leftBraceValue]
+        : []
+    const mdxFlowExpression = resolveConstruct(
+      self.parser.constructs.flow[codes.leftCurlyBrace],
+      'mdxFlowExpression'
+    )
+    const mdxTextExpression = resolveConstruct(
+      self.parser.constructs.text[codes.leftCurlyBrace],
+      'mdxTextExpression'
+    )
 
     return start
 
@@ -152,24 +182,12 @@ export function jsxFlow(acorn, options) {
       }
 
       if (!options.preferInline) {
-        // We want to allow expressions directly after tags.
-        // See <https://github.com/micromark/micromark-extension-mdx-expression/blob/d5d92b9/packages/micromark-extension-mdx-expression/dev/lib/syntax.js#L183>
-        // for more info.
-        const leftBraceValue = self.parser.constructs.flow[codes.leftCurlyBrace]
-        /* c8 ignore next 5 -- always a list when normalized. */
-        const constructs = Array.isArray(leftBraceValue)
-          ? leftBraceValue
-          : leftBraceValue
-            ? [leftBraceValue]
-            : []
-        const expression = constructs.find((d) => d.name === 'mdxFlowExpression')
-
         if (code === codes.lessThan) {
           // Another tag.
           // We can’t just say: fine. Lines of blocks have to be parsed until an eol/eof.
           return start(code);
-        } else if (code === codes.leftCurlyBrace && expression) {
-          return effects.attempt(expression, end, nok)(code);
+        } else if (code === codes.leftCurlyBrace && mdxFlowExpression) {
+          return effects.attempt(mdxFlowExpression, end, nok)(code);
         } else if (markdownLineEnding(code)) {
           return ok(code);
         } else {
@@ -191,8 +209,9 @@ export function jsxFlow(acorn, options) {
      * Handle content after newline following jsxFlowTag.
      *
      * ```markdown
-     * > | <A>\n
-     *          ^
+     *   | <A>
+     * > |
+     *     ^
      * ```
      *
      * @type {State} 
@@ -223,11 +242,6 @@ export function jsxFlow(acorn, options) {
      * @type {State}
      */
     function maybeText(code) {
-      if (markdownSpace(code)) {
-        // handle indent
-        return factorySpace(effects, maybeText, types.linePrefix)(code);
-      }
-
       if (code === codes.eof) {
         return ok(code);
       }
@@ -235,6 +249,18 @@ export function jsxFlow(acorn, options) {
       if (code === codes.lessThan) {
         // try next tag, or text
         return effects.check(selfConstruct, start, textStart)(code);
+      }
+
+      if (code === codes.leftCurlyBrace && mdxTextExpression) {
+        return effects.attempt(mdxTextExpression, maybeText, textStart)(code);
+      }
+
+      if (markdownLineEnding(code)) {
+        // handle possible newline after expression
+        effects.enter('lineEnding');
+        effects.consume(code);
+        effects.exit('lineEnding');
+        return textNewlineContinuation;
       }
 
       return textStart(code);
