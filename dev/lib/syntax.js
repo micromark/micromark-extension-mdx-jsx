@@ -15,6 +15,9 @@
  * @property {boolean | null | undefined} [addResult=false]
  *   Whether to add `estree` fields to tokens with results from acorn
  *   (default: `false`).
+ * @property {boolean | null | undefined} [preferInline=false]
+ *   If true, parse text in JSX flow tags as inline instead of block
+ *   (default: `false`). See CommonMark specification for more details.
  */
 
 import {codes} from 'micromark-util-symbol'
@@ -56,7 +59,8 @@ export function mdxJsx(options) {
     flow: {
       [codes.lessThan]: jsxFlow(acorn || undefined, {
         acornOptions,
-        addResult: settings.addResult || undefined
+        addResult: settings.addResult || undefined,
+        preferInline: settings.preferInline ?? false,
       })
     },
     text: {
