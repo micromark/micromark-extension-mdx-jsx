@@ -1,11 +1,6 @@
 /**
- * @typedef {import('micromark-factory-mdx-expression').Acorn} Acorn
- * @typedef {import('micromark-factory-mdx-expression').AcornOptions} AcornOptions
- * @typedef {import('micromark-util-types').Code} Code
- * @typedef {import('micromark-util-types').Effects} Effects
- * @typedef {import('micromark-util-types').State} State
- * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
- * @typedef {import('micromark-util-types').TokenType} TokenType
+ * @import {Acorn, AcornOptions} from 'micromark-factory-mdx-expression'
+ * @import {Code, Effects, State, TokenizeContext, TokenType} from 'micromark-util-types'
  */
 
 import {ok as assert} from 'devlop'
@@ -27,9 +22,9 @@ const trouble = 'https://github.com/micromark/micromark-extension-mdx-jsx'
  * @param {Effects} effects
  * @param {State} ok
  * @param {State} nok
- * @param {Acorn | undefined} acorn
- * @param {AcornOptions | undefined} acornOptions
- * @param {boolean | undefined} addResult
+ * @param {Acorn | null | undefined} acorn
+ * @param {AcornOptions | null | undefined} acornOptions
+ * @param {boolean | null | undefined} addResult
  * @param {boolean | undefined} allowLazy
  * @param {TokenType} tagType
  * @param {TokenType} tagMarkerType

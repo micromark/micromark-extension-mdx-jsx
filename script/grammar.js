@@ -1,11 +1,14 @@
 /**
- * @typedef {import('mdast').Root} Root
+ * @import {Root} from 'mdast'
  */
 
 import fs from 'node:fs/promises'
 import {zone} from 'mdast-zone'
 
-const syntax = await fs.readFile(new URL('grammar.html', import.meta.url))
+const syntax = await fs.readFile(
+  new URL('grammar.html', import.meta.url),
+  'utf8'
+)
 
 export default function grammar() {
   /**

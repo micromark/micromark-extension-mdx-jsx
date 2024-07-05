@@ -1,14 +1,42 @@
 import type {Program} from 'estree'
+import type {Acorn, AcornOptions} from 'micromark-factory-mdx-expression'
 
-export {mdxJsx, type Options} from './lib/syntax.js'
+export {mdxJsx} from './lib/syntax.js'
 
+/**
+ * Configuration (optional).
+ */
+export interface Options {
+  /**
+   * Acorn parser to use (optional).
+   */
+  acorn?: Acorn | null | undefined
+  /**
+   * Configuration for acorn (default: `{ecmaVersion: 2024, locations: true,
+   * sourceType: 'module'}`); all fields except `locations` can be set.
+   */
+  acornOptions?: AcornOptions | null | undefined
+  /**
+   * Whether to add `estree` fields to tokens with results from acorn
+   * (default: `false`).
+   */
+  addResult?: boolean | null | undefined
+}
+
+/**
+ * Augment types.
+ */
 declare module 'micromark-util-types' {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  /**
+   * Token fields.
+   */
   interface Token {
     estree?: Program
   }
 
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  /**
+   * Token types.
+   */
   interface TokenTypeMap {
     esWhitespace: 'esWhitespace'
 

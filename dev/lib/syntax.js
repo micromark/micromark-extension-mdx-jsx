@@ -1,20 +1,7 @@
 /**
- * @typedef {import('micromark-util-types').Extension} Extension
- * @typedef {import('micromark-factory-mdx-expression').Acorn} Acorn
- * @typedef {import('micromark-factory-mdx-expression').AcornOptions} AcornOptions
- */
-
-/**
- * @typedef Options
- *   Configuration (optional).
- * @property {Acorn | null | undefined} [acorn]
- *   Acorn parser to use (optional).
- * @property {AcornOptions | null | undefined} [acornOptions]
- *   Configuration for acorn (default: `{ecmaVersion: 2024, locations: true,
- *   sourceType: 'module'}`); all fields except `locations` can be set.
- * @property {boolean | null | undefined} [addResult=false]
- *   Whether to add `estree` fields to tokens with results from acorn
- *   (default: `false`).
+ * @import {Options} from 'micromark-extension-mdx-jsx'
+ * @import {AcornOptions} from 'micromark-factory-mdx-expression'
+ * @import {Extension} from 'micromark-util-types'
  */
 
 import {codes} from 'micromark-util-symbol'

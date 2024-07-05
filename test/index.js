@@ -1,9 +1,6 @@
 /**
- * @typedef {import('estree').Node} Node
- * @typedef {import('estree').Program} Program
- * @typedef {import('micromark-util-types').CompileContext} CompileContext
- * @typedef {import('micromark-util-types').Handle} Handle
- * @typedef {import('micromark-util-types').HtmlExtension} HtmlExtension
+ * @import {Node, Program} from 'estree'
+ * @import {CompileContext, Handle, HtmlExtension} from 'micromark-util-types'
  */
 
 import assert from 'node:assert/strict'

@@ -1,19 +1,7 @@
 /**
- * @typedef {import('micromark-factory-mdx-expression').Acorn} Acorn
- * @typedef {import('micromark-factory-mdx-expression').AcornOptions} AcornOptions
- * @typedef {import('micromark-util-types').Construct} Construct
- * @typedef {import('micromark-util-types').State} State
- * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
- * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
- */
-
-/**
- * @typedef Options
- *   Configuration.
- * @property {AcornOptions | undefined} acornOptions
- *   Acorn options.
- * @property {boolean | undefined} addResult
- *   Whether to add `estree` fields to tokens with results from acorn.
+ * @import {Options} from 'micromark-extension-mdx-jsx'
+ * @import {Acorn, AcornOptions} from 'micromark-factory-mdx-expression'
+ * @import {Construct, State, TokenizeContext, Tokenizer} from 'micromark-util-types'
  */
 
 import {ok as assert} from 'devlop'
