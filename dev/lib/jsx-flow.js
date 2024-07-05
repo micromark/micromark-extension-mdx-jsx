@@ -151,8 +151,8 @@ export function jsxFlow(acorn, options) {
       const constructs = Array.isArray(leftBraceValue)
         ? leftBraceValue
         : leftBraceValue
-        ? [leftBraceValue]
-        : []
+          ? [leftBraceValue]
+          : []
       const expression = constructs.find((d) => d.name === 'mdxFlowExpression')
 
       // Another tag.
@@ -160,10 +160,10 @@ export function jsxFlow(acorn, options) {
         ? // We can’t just say: fine. Lines of blocks have to be parsed until an eol/eof.
           start(code)
         : code === codes.leftCurlyBrace && expression
-        ? effects.attempt(expression, end, nok)(code)
-        : code === codes.eof || markdownLineEnding(code)
-        ? ok(code)
-        : nok(code)
+          ? effects.attempt(expression, end, nok)(code)
+          : code === codes.eof || markdownLineEnding(code)
+            ? ok(code)
+            : nok(code)
     }
   }
 }

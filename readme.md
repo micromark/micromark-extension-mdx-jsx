@@ -12,26 +12,26 @@
 
 ## Contents
 
-*   [What is this?](#what-is-this)
-*   [When to use this](#when-to-use-this)
-*   [Install](#install)
-*   [Use](#use)
-*   [API](#api)
-    *   [`mdxJsx(options?)`](#mdxjsxoptions)
-    *   [`Options`](#options)
-*   [Authoring](#authoring)
-*   [Syntax](#syntax)
-*   [Errors](#errors)
-    *   [Unexpected end of file $at, expected $expect](#unexpected-end-of-file-at-expected-expect)
-    *   [Unexpected character $at, expected $expect](#unexpected-character-at-expected-expect)
-    *   [Unexpected lazy line in container, expected line to be…](#unexpected-lazy-line-in-container-expected-line-to-be)
-*   [Tokens](#tokens)
-*   [Types](#types)
-*   [Compatibility](#compatibility)
-*   [Security](#security)
-*   [Related](#related)
-*   [Contribute](#contribute)
-*   [License](#license)
+* [What is this?](#what-is-this)
+* [When to use this](#when-to-use-this)
+* [Install](#install)
+* [Use](#use)
+* [API](#api)
+  * [`mdxJsx(options?)`](#mdxjsxoptions)
+  * [`Options`](#options)
+* [Authoring](#authoring)
+* [Syntax](#syntax)
+* [Errors](#errors)
+  * [Unexpected end of file $at, expected $expect](#unexpected-end-of-file-at-expected-expect)
+  * [Unexpected character $at, expected $expect](#unexpected-character-at-expected-expect)
+  * [Unexpected lazy line in container, expected line to be…](#unexpected-lazy-line-in-container-expected-line-to-be)
+* [Tokens](#tokens)
+* [Types](#types)
+* [Compatibility](#compatibility)
+* [Security](#security)
+* [Related](#related)
+* [Contribute](#contribute)
+* [License](#license)
 
 ## What is this?
 
@@ -119,8 +119,8 @@ Create an extension for `micromark` to enable MDX JSX syntax.
 
 ###### Parameters
 
-*   `options` ([`Options`][api-options], optional)
-    — configuration
+* `options` ([`Options`][api-options], optional)
+  — configuration
 
 ###### Returns
 
@@ -133,13 +133,13 @@ Configuration (TypeScript type).
 
 ###### Fields
 
-*   `acorn` ([`Acorn`][acorn], optional)
-    — acorn parser to use
-*   `acornOptions` ([`AcornOptions`][acorn-options], default:
-    `{ecmaVersion: 2024, locations: true, sourceType: 'module'}`)
-    — configuration for acorn; all fields except `locations` can be set
-*   `addResult` (`boolean`, default: `false`)
-    — whether to add `estree` fields to tokens with results from acorn
+* `acorn` ([`Acorn`][acorn], optional)
+  — acorn parser to use
+* `acornOptions` ([`AcornOptions`][acorn-options], default:
+  `{ecmaVersion: 2024, locations: true, sourceType: 'module'}`)
+  — configuration for acorn; all fields except `locations` can be set
+* `addResult` (`boolean`, default: `false`)
+  — whether to add `estree` fields to tokens with results from acorn
 
 ## Authoring
 
@@ -349,72 +349,72 @@ b>
 
 Many tokens are used:
 
-*   `mdxJsxFlowTag` for the whole JSX tag (`<a>`)
-*   `mdxJsxTextTag` ^
-*   `mdxJsxFlowTagMarker` for the tag markers (`<`, `>`)
-*   `mdxJsxTextTagMarker` ^
-*   `mdxJsxFlowTagClosingMarker` for the `/` marking a closing tag (`</a>`)
-*   `mdxJsxTextTagClosingMarker` ^
-*   `mdxJsxFlowTagSelfClosingMarker` for the `/` marking a self-closing tag
-    (`<a/>`)
-*   `mdxJsxTextTagSelfClosingMarker` ^
-*   `mdxJsxFlowTagName` for the whole tag name (`a:b` in `<a:b>`)
-*   `mdxJsxTextTagName` ^
-*   `mdxJsxFlowTagNamePrimary` for the first name (`a` in `<a:b>`)
-*   `mdxJsxTextTagNamePrimary` ^
-*   `mdxJsxFlowTagNameMemberMarker` for the `.` marking in members (`<a.b>`)
-*   `mdxJsxTextTagNameMemberMarker` ^
-*   `mdxJsxFlowTagNameMember` for member names (`b` in `<a:b>`)
-*   `mdxJsxTextTagNameMember` ^
-*   `mdxJsxFlowTagNamePrefixMarker` for the `:` between primary and local
-    (`<a:b>`)
-*   `mdxJsxTextTagNamePrefixMarker` ^
-*   `mdxJsxFlowTagNameLocal` for the local name (`b` in `<a:b>`)
-*   `mdxJsxTextTagNameLocal` ^
-*   `mdxJsxFlowTagExpressionAttribute` for whole expression attributes
-    (`<a {...b}>`)
-*   `mdxJsxTextTagExpressionAttribute` ^
-*   `mdxJsxFlowTagExpressionAttributeMarker` for `{`, `}` in expression
-    attributes
-*   `mdxJsxTextTagExpressionAttributeMarker` ^
-*   `mdxJsxFlowTagExpressionAttributeValue` for chunks of what’s inside
-    expression attributes
-*   `mdxJsxTextTagExpressionAttributeValue` ^
-*   `mdxJsxFlowTagAttribute` for a whole normal attribute (`<a b>`)
-*   `mdxJsxTextTagAttribute` ^
-*   `mdxJsxFlowTagAttributeName` for the whole name of an attribute (`b:c` in
-    `<a b:c>`)
-*   `mdxJsxTextTagAttributeName` ^
-*   `mdxJsxFlowTagAttributeNamePrimary` for the first name of an attribute (`b`
-    in `<a b:c>`)
-*   `mdxJsxTextTagAttributeNamePrimary` ^
-*   `mdxJsxFlowTagAttributeNamePrefixMarker` for the `:` between primary and
-    local (`<a b:c>`)
-*   `mdxJsxTextTagAttributeNamePrefixMarker` ^
-*   `mdxJsxFlowTagAttributeNameLocal` for the local name of an attribute (`c`
-    in `<a b:c>`)
-*   `mdxJsxTextTagAttributeNameLocal` ^
-*   `mdxJsxFlowTagAttributeInitializerMarker` for the `=` between an attribute
-    name and value
-*   `mdxJsxTextTagAttributeInitializerMarker` ^
-*   `mdxJsxFlowTagAttributeValueLiteral` for a string attribute value
-    (`<a b="">`)
-*   `mdxJsxTextTagAttributeValueLiteral` ^
-*   `mdxJsxFlowTagAttributeValueLiteralMarker` for the quotes around a string
-    attribute value (`"` or `'`)
-*   `mdxJsxTextTagAttributeValueLiteralMarker` ^
-*   `mdxJsxFlowTagAttributeValueLiteralValue` for chunks of what’s inside
-    string attribute values
-*   `mdxJsxTextTagAttributeValueLiteralValue` ^
-*   `mdxJsxFlowTagAttributeValueExpression` for an expression attribute value
-    (`<a b={1}>`)
-*   `mdxJsxTextTagAttributeValueExpression` ^
-*   `mdxJsxFlowTagAttributeValueExpressionMarker` for the `{` and `}` of
-    expression attribute values
-*   `mdxJsxTextTagAttributeValueExpressionMarker` ^
-*   `mdxJsxFlowTagAttributeValueExpressionValue` for chunks of what’s inside
-    expression attribute values
-*   `mdxJsxTextTagAttributeValueExpressionValue` ^
+* `mdxJsxFlowTag` for the whole JSX tag (`<a>`)
+* `mdxJsxTextTag` ^
+* `mdxJsxFlowTagMarker` for the tag markers (`<`, `>`)
+* `mdxJsxTextTagMarker` ^
+* `mdxJsxFlowTagClosingMarker` for the `/` marking a closing tag (`</a>`)
+* `mdxJsxTextTagClosingMarker` ^
+* `mdxJsxFlowTagSelfClosingMarker` for the `/` marking a self-closing tag
+  (`<a/>`)
+* `mdxJsxTextTagSelfClosingMarker` ^
+* `mdxJsxFlowTagName` for the whole tag name (`a:b` in `<a:b>`)
+* `mdxJsxTextTagName` ^
+* `mdxJsxFlowTagNamePrimary` for the first name (`a` in `<a:b>`)
+* `mdxJsxTextTagNamePrimary` ^
+* `mdxJsxFlowTagNameMemberMarker` for the `.` marking in members (`<a.b>`)
+* `mdxJsxTextTagNameMemberMarker` ^
+* `mdxJsxFlowTagNameMember` for member names (`b` in `<a:b>`)
+* `mdxJsxTextTagNameMember` ^
+* `mdxJsxFlowTagNamePrefixMarker` for the `:` between primary and local
+  (`<a:b>`)
+* `mdxJsxTextTagNamePrefixMarker` ^
+* `mdxJsxFlowTagNameLocal` for the local name (`b` in `<a:b>`)
+* `mdxJsxTextTagNameLocal` ^
+* `mdxJsxFlowTagExpressionAttribute` for whole expression attributes
+  (`<a {...b}>`)
+* `mdxJsxTextTagExpressionAttribute` ^
+* `mdxJsxFlowTagExpressionAttributeMarker` for `{`, `}` in expression
+  attributes
+* `mdxJsxTextTagExpressionAttributeMarker` ^
+* `mdxJsxFlowTagExpressionAttributeValue` for chunks of what’s inside
+  expression attributes
+* `mdxJsxTextTagExpressionAttributeValue` ^
+* `mdxJsxFlowTagAttribute` for a whole normal attribute (`<a b>`)
+* `mdxJsxTextTagAttribute` ^
+* `mdxJsxFlowTagAttributeName` for the whole name of an attribute (`b:c` in
+  `<a b:c>`)
+* `mdxJsxTextTagAttributeName` ^
+* `mdxJsxFlowTagAttributeNamePrimary` for the first name of an attribute (`b`
+  in `<a b:c>`)
+* `mdxJsxTextTagAttributeNamePrimary` ^
+* `mdxJsxFlowTagAttributeNamePrefixMarker` for the `:` between primary and
+  local (`<a b:c>`)
+* `mdxJsxTextTagAttributeNamePrefixMarker` ^
+* `mdxJsxFlowTagAttributeNameLocal` for the local name of an attribute (`c`
+  in `<a b:c>`)
+* `mdxJsxTextTagAttributeNameLocal` ^
+* `mdxJsxFlowTagAttributeInitializerMarker` for the `=` between an attribute
+  name and value
+* `mdxJsxTextTagAttributeInitializerMarker` ^
+* `mdxJsxFlowTagAttributeValueLiteral` for a string attribute value
+  (`<a b="">`)
+* `mdxJsxTextTagAttributeValueLiteral` ^
+* `mdxJsxFlowTagAttributeValueLiteralMarker` for the quotes around a string
+  attribute value (`"` or `'`)
+* `mdxJsxTextTagAttributeValueLiteralMarker` ^
+* `mdxJsxFlowTagAttributeValueLiteralValue` for chunks of what’s inside
+  string attribute values
+* `mdxJsxTextTagAttributeValueLiteralValue` ^
+* `mdxJsxFlowTagAttributeValueExpression` for an expression attribute value
+  (`<a b={1}>`)
+* `mdxJsxTextTagAttributeValueExpression` ^
+* `mdxJsxFlowTagAttributeValueExpressionMarker` for the `{` and `}` of
+  expression attribute values
+* `mdxJsxTextTagAttributeValueExpressionMarker` ^
+* `mdxJsxFlowTagAttributeValueExpressionValue` for chunks of what’s inside
+  expression attribute values
+* `mdxJsxTextTagAttributeValueExpressionValue` ^
 
 ## Types
 
@@ -439,12 +439,12 @@ This package is safe.
 
 ## Related
 
-*   [`micromark-extension-mdxjs`][micromark-extension-mdxjs]
-    — support all MDX syntax
-*   [`mdast-util-mdx-jsx`][mdast-util-mdx-jsx]
-    — support MDX JSX in mdast
-*   [`remark-mdx`][remark-mdx]
-    — support all MDX syntax in remark
+* [`micromark-extension-mdxjs`][micromark-extension-mdxjs]
+  — support all MDX syntax
+* [`mdast-util-mdx-jsx`][mdast-util-mdx-jsx]
+  — support MDX JSX in mdast
+* [`remark-mdx`][remark-mdx]
+  — support all MDX syntax in remark
 
 ## Contribute
 
