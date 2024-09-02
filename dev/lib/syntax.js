@@ -1,6 +1,6 @@
 /**
  * @import {Options} from 'micromark-extension-mdx-jsx'
- * @import {AcornOptions} from 'micromark-factory-mdx-expression'
+ * @import {AcornOptions} from 'micromark-util-events-to-acorn'
  * @import {Extension} from 'micromark-util-types'
  */
 

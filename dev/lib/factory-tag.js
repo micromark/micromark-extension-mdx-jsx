@@ -1,5 +1,5 @@
 /**
- * @import {Acorn, AcornOptions} from 'micromark-factory-mdx-expression'
+ * @import {Acorn, AcornOptions} from 'micromark-util-events-to-acorn'
  * @import {Code, Effects, State, TokenizeContext, TokenType} from 'micromark-util-types'
  */
 

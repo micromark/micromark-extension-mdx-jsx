@@ -1,5 +1,5 @@
 import type {Program} from 'estree'
-import type {Acorn, AcornOptions} from 'micromark-factory-mdx-expression'
+import type {Acorn, AcornOptions} from 'micromark-util-events-to-acorn'
 
 export {mdxJsx} from './lib/syntax.js'
 
