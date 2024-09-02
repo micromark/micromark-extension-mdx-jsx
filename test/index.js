@@ -1,3 +1,5 @@
+/* eslint-disable unicorn/prefer-structured-clone -- Casting to JSON drops instance stuff. */
+
 /**
  * @import {Node, Program} from 'estree'
  * @import {CompileContext, Handle, HtmlExtension} from 'micromark-util-types'
