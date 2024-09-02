@@ -1368,13 +1368,11 @@ test('positional info', async function (t) {
       /** @type {Program | undefined} */
       let program
 
-      const acornNode = /** @type {Node} */ (
-        acorn.parseExpressionAt(example, 0, {
-          ecmaVersion: 'latest',
-          locations: true,
-          ranges: true
-        })
-      )
+      acorn.parseExpressionAt(example, 0, {
+        ecmaVersion: 'latest',
+        locations: true,
+        ranges: true
+      })
 
       micromark(example, {
         extensions: [mdxJsx({acorn, addResult: true})],
@@ -1382,11 +1380,6 @@ test('positional info', async function (t) {
           {enter: {mdxJsxFlowTagExpressionAttribute: expression}}
         ]
       })
-
-      assert(acornNode.type === 'JSXElement')
-      const acornAttribute = acornNode.openingElement.attributes[0]
-      assert(acornAttribute.type === 'JSXSpreadAttribute')
-      const acornArgument = acornAttribute.argument
 
       assert(program)
       removeOffsets(program)
@@ -1398,10 +1391,25 @@ test('positional info', async function (t) {
       assert(micromarkProperty.type === 'SpreadElement')
       const micromarkArgument = micromarkProperty.argument
 
-      assert.deepEqual(
-        JSON.parse(JSON.stringify(micromarkArgument)),
-        JSON.parse(JSON.stringify(acornArgument))
-      )
+      assert.deepEqual(JSON.parse(JSON.stringify(micromarkArgument)), {
+        type: 'TemplateLiteral',
+        start: 7,
+        end: 11,
+        loc: {start: {line: 1, column: 7}, end: {line: 2, column: 2}},
+        expressions: [],
+        quasis: [
+          {
+            type: 'TemplateElement',
+            start: 8,
+            end: 10,
+            loc: {start: {line: 1, column: 8}, end: {line: 2, column: 1}},
+            value: {raw: '\n', cooked: '\n'},
+            tail: true,
+            range: [8, 10]
+          }
+        ],
+        range: [7, 11]
+      })
 
       /**
        * @this {CompileContext}
@@ -1511,7 +1519,7 @@ test('indent', async function (t) {
       const quasi = statement.expression.quasis[0]
       assert(quasi)
       const value = quasi.value.cooked
-      assert.equal(value, '\nalpha\n bravo\n  charlie\n   delta\n')
+      assert.equal(value, '\nalpha\nbravo\ncharlie\n delta\n')
 
       /**
        * @this {CompileContext}
