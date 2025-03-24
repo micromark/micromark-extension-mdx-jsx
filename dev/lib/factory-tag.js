@@ -1,14 +1,14 @@
 /**
- * @import {Acorn, AcornOptions} from 'micromark-util-events-to-acorn'
- * @import {Code, Effects, State, TokenizeContext, TokenType} from 'micromark-util-types'
+ * @import {AcornOptions, Acorn} from 'micromark-util-events-to-acorn'
+ * @import {Code, Effects, State, TokenType, TokenizeContext} from 'micromark-util-types'
  */
 
 import {ok as assert} from 'devlop'
 import {cont as idCont, start as idStart} from 'estree-util-is-identifier-name'
 import {factoryMdxExpression} from 'micromark-factory-mdx-expression'
 import {
-  markdownLineEnding,
   markdownLineEndingOrSpace,
+  markdownLineEnding,
   markdownSpace,
   unicodeWhitespace
 } from 'micromark-util-character'

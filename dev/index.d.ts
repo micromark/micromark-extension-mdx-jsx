@@ -1,5 +1,5 @@
 import type {Program} from 'estree'
-import type {Acorn, AcornOptions} from 'micromark-util-events-to-acorn'
+import type {AcornOptions, Acorn} from 'micromark-util-events-to-acorn'
 
 export {mdxJsx} from './lib/syntax.js'
 
@@ -8,14 +8,14 @@ export {mdxJsx} from './lib/syntax.js'
  */
 export interface Options {
   /**
-   * Acorn parser to use (optional).
-   */
-  acorn?: Acorn | null | undefined
-  /**
    * Configuration for acorn (default: `{ecmaVersion: 2024, locations: true,
    * sourceType: 'module'}`); all fields except `locations` can be set.
    */
   acornOptions?: AcornOptions | null | undefined
+  /**
+   * Acorn parser to use (optional).
+   */
+  acorn?: Acorn | null | undefined
   /**
    * Whether to add `estree` fields to tokens with results from acorn
    * (default: `false`).
@@ -27,13 +27,6 @@ export interface Options {
  * Augment types.
  */
 declare module 'micromark-util-types' {
-  /**
-   * Token fields.
-   */
-  interface Token {
-    estree?: Program
-  }
-
   /**
    * Token types.
    */
@@ -91,5 +84,12 @@ declare module 'micromark-util-types' {
     mdxJsxTextTagAttributeValueExpression: 'mdxJsxTextTagAttributeValueExpression'
     mdxJsxTextTagAttributeValueExpressionMarker: 'mdxJsxTextTagAttributeValueExpressionMarker'
     mdxJsxTextTagAttributeValueExpressionValue: 'mdxJsxTextTagAttributeValueExpressionValue'
+  }
+
+  /**
+   * Token fields.
+   */
+  interface Token {
+    estree?: Program
   }
 }

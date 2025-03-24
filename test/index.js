@@ -7,19 +7,19 @@
 
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import {Parser} from 'acorn'
 import acornJsx from 'acorn-jsx'
+import {Parser} from 'acorn'
 import {visit} from 'estree-util-visit'
-import {micromark} from 'micromark'
-import {mdxJsx} from 'micromark-extension-mdx-jsx'
 import {mdxExpression} from 'micromark-extension-mdx-expression'
+import {mdxJsx} from 'micromark-extension-mdx-jsx'
+import {micromark} from 'micromark'
 
 const acorn = Parser.extend(acornJsx())
 
 /** @type {HtmlExtension} */
 const html = {
-  enter: {mdxJsxTextTag: start, mdxJsxFlowTag: start},
-  exit: {mdxJsxTextTag: end, mdxJsxFlowTag: end}
+  enter: {mdxJsxFlowTag: start, mdxJsxTextTag: start},
+  exit: {mdxJsxFlowTag: end, mdxJsxTextTag: end}
 }
 
 /**

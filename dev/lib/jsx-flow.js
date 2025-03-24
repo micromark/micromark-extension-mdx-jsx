@@ -21,7 +21,7 @@ import {factoryTag} from './factory-tag.js'
  *   Construct.
  */
 export function jsxFlow(acorn, options) {
-  return {name: 'mdxJsxFlowTag', tokenize: tokenizeJsxFlow, concrete: true}
+  return {concrete: true, name: 'mdxJsxFlowTag', tokenize: tokenizeJsxFlow}
 
   /**
    * MDX JSX (flow).
@@ -141,7 +141,15 @@ export function jsxFlow(acorn, options) {
         : leftBraceValue
           ? [leftBraceValue]
           : []
-      const expression = constructs.find((d) => d.name === 'mdxFlowExpression')
+      /** @type {Construct | undefined} */
+      let expression
+
+      for (const construct of constructs) {
+        if (construct.name === 'mdxFlowExpression') {
+          expression = construct
+          break
+        }
+      }
 
       // Another tag.
       return code === codes.lessThan
