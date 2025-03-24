@@ -1,14 +1,12 @@
 # micromark-extension-mdx-jsx
 
-[![Build][build-badge]][build]
-[![Coverage][coverage-badge]][coverage]
-[![Downloads][downloads-badge]][downloads]
-[![Size][size-badge]][size]
-[![Sponsors][sponsors-badge]][collective]
-[![Backers][backers-badge]][collective]
-[![Chat][chat-badge]][chat]
+[![Build][badge-build-image]][badge-build-url]
+[![Coverage][badge-coverage-image]][badge-coverage-url]
+[![Downloads][badge-downloads-image]][badge-downloads-url]
+[![Size][badge-size-image]][badge-size-url]
 
-[micromark][] extension to support [MDX][mdxjs] JSX (`<Component />`).
+[micromark][github-micromark] extension to support [MDX][mdxjs] JSX
+(`<Component />`).
 
 ## Contents
 
@@ -36,7 +34,7 @@
 ## What is this?
 
 This package contains an extension that adds support for the JSX syntax enabled
-by [MDX][mdxjs] to [`micromark`][micromark].
+by [MDX][mdxjs] to [`micromark`][github-micromark].
 These extensions are used inside MDX.
 It mostly matches how JSX works in most places that support it (TypeScript,
 Babel, esbuild, SWC, etc).
@@ -48,22 +46,24 @@ When unaware, expressions could include Rust or variables or whatnot.
 
 This project is useful when you want to support JSX in markdown.
 
-You can use this extension when you are working with [`micromark`][micromark].
+You can use this extension when you are working with
+[`micromark`][github-micromark].
 To support all MDX features, use
-[`micromark-extension-mdxjs`][micromark-extension-mdxjs] instead.
+[`micromark-extension-mdxjs`][github-micromark-extension-mdxjs] instead.
 
 When you need a syntax tree, combine this package with
-[`mdast-util-mdx-jsx`][mdast-util-mdx-jsx].
+[`mdast-util-mdx-jsx`][github-mdast-util-mdx-jsx].
 
-All these packages are used in [`remark-mdx`][remark-mdx], which focusses on
-making it easier to transform content by abstracting these internals away.
+All these packages are used in [`remark-mdx`][mdxjs-remark-mdx],
+which focusses on making it easier to transform content by abstracting these
+internals away.
 
 When you are using [`mdx-js/mdx`][mdxjs], all of this is already included.
 
 ## Install
 
-This package is [ESM only][esm].
-In Node.js (version 16+), install with [npm][]:
+This package is [ESM only][github-gist-esm].
+In Node.js (version 16+), install with [npm][npmjs-install]:
 
 ```sh
 npm install micromark-extension-mdx-jsx
@@ -101,15 +101,15 @@ Yields:
 ```
 
 …which is useless: go to a syntax tree with
-[`mdast-util-from-markdown`][mdast-util-from-markdown] and
-[`mdast-util-mdx-jsx`][mdast-util-mdx-jsx] instead.
+[`mdast-util-from-markdown`][github-mdast-util-from-markdown] and
+[`mdast-util-mdx-jsx`][github-mdast-util-mdx-jsx] instead.
 
 ## API
 
 This package exports the identifier [`mdxJsx`][api-mdx-jsx].
 There is no default export.
 
-The export map supports the [`development` condition][development].
+The export map supports the [`development` condition][nodejs-api-conditions].
 Run `node --conditions development module.js` to get instrumented dev code.
 Without this condition, production code is loaded.
 
@@ -125,7 +125,7 @@ Create an extension for `micromark` to enable MDX JSX syntax.
 ###### Returns
 
 Extension for `micromark` that can be passed in `extensions` to enable MDX
-JSX syntax ([`Extension`][micromark-extension]).
+JSX syntax ([`Extension`][github-micromark-extension]).
 
 ### `Options`
 
@@ -133,9 +133,9 @@ Configuration (TypeScript type).
 
 ###### Fields
 
-* `acorn` ([`Acorn`][acorn], optional)
+* `acorn` ([`Acorn`][github-acorn], optional)
   — acorn parser to use
-* `acornOptions` ([`AcornOptions`][acorn-options], default:
+* `acornOptions` ([`AcornOptions`][github-acorn-options], default:
   `{ecmaVersion: 2024, locations: true, sourceType: 'module'}`)
   — configuration for acorn; all fields except `locations` can be set
 * `addResult` (`boolean`, default: `false`)
@@ -285,12 +285,12 @@ Depending on whether acorn is passed, either valid JavaScript must be used in
 expressions, or arbitrary text (such as Rust code or so) can be used.
 
 More on this can be found in
-[§ Syntax of `micromark-extension-mdx-expression`][expression-syntax].
+[§ Syntax of `micromark-extension-mdx-expression`][github-expression-syntax].
 
 ## Errors
 
 In aware (gnostic) mode, expressions are parsed with
-[`micromark-extension-mdx-expression`][micromark-extension-mdx-expression],
+[`micromark-extension-mdx-expression`][github-micromark-expression],
 which throws some more errors.
 
 ### Unexpected end of file $at, expected $expect
@@ -439,99 +439,89 @@ This package is safe.
 
 ## Related
 
-* [`micromark-extension-mdxjs`][micromark-extension-mdxjs]
+* [`micromark-extension-mdxjs`][github-micromark-extension-mdxjs]
   — support all MDX syntax
-* [`mdast-util-mdx-jsx`][mdast-util-mdx-jsx]
+* [`mdast-util-mdx-jsx`][github-mdast-util-mdx-jsx]
   — support MDX JSX in mdast
-* [`remark-mdx`][remark-mdx]
+* [`remark-mdx`][mdxjs-remark-mdx]
   — support all MDX syntax in remark
 
 ## Contribute
 
-See [`contributing.md` in `micromark/.github`][contributing] for ways to get
-started.
-See [`support.md`][support] for ways to get help.
+See [`contributing.md` in `micromark/.github`][health-contributing] for ways
+to get started.
+See [`support.md`][health-support] for ways to get help.
 
-This project has a [code of conduct][coc].
+This project has a [code of conduct][health-coc].
 By interacting with this repository, organization, or community you agree to
 abide by its terms.
 
 ## License
 
-[MIT][license] © [Titus Wormer][author]
+[MIT][file-license] © [Titus Wormer][wooorm]
 
 <!-- Definitions -->
 
-[build-badge]: https://github.com/micromark/micromark-extension-mdx-jsx/workflows/main/badge.svg
+[api-mdx-jsx]: #mdxjsxoptions
 
-[build]: https://github.com/micromark/micromark-extension-mdx-jsx/actions
+[api-options]: #options
 
-[coverage-badge]: https://img.shields.io/codecov/c/github/micromark/micromark-extension-mdx-jsx.svg
+[badge-build-image]: https://github.com/micromark/micromark-extension-mdx-jsx/workflows/main/badge.svg
 
-[coverage]: https://codecov.io/github/micromark/micromark-extension-mdx-jsx
+[badge-build-url]: https://github.com/micromark/micromark-extension-mdx-jsx/actions
 
-[downloads-badge]: https://img.shields.io/npm/dm/micromark-extension-mdx-jsx.svg
+[badge-coverage-image]: https://img.shields.io/codecov/c/github/micromark/micromark-extension-mdx-jsx.svg
 
-[downloads]: https://www.npmjs.com/package/micromark-extension-mdx-jsx
+[badge-coverage-url]: https://codecov.io/github/micromark/micromark-extension-mdx-jsx
 
-[size-badge]: https://img.shields.io/badge/dynamic/json?label=minzipped%20size&query=$.size.compressedSize&url=https://deno.bundlejs.com/?q=micromark-extension-mdx-jsx
+[badge-downloads-image]: https://img.shields.io/npm/dm/micromark-extension-mdx-jsx.svg
 
-[size]: https://bundlejs.com/?q=micromark-extension-mdx-jsx
+[badge-downloads-url]: https://www.npmjs.com/package/micromark-extension-mdx-jsx
 
-[sponsors-badge]: https://opencollective.com/unified/sponsors/badge.svg
+[badge-size-image]: https://img.shields.io/bundlejs/size/micromark-extension-mdx-jsx
 
-[backers-badge]: https://opencollective.com/unified/backers/badge.svg
-
-[collective]: https://opencollective.com/unified
-
-[chat-badge]: https://img.shields.io/badge/chat-discussions-success.svg
-
-[chat]: https://github.com/micromark/micromark/discussions
-
-[npm]: https://docs.npmjs.com/cli/install
+[badge-size-url]: https://bundlejs.com/?q=micromark-extension-mdx-jsx
 
 [esmsh]: https://esm.sh
 
-[license]: license
+[file-license]: license
 
-[author]: https://wooorm.com
+[github-acorn]: https://github.com/acornjs/acorn
 
-[contributing]: https://github.com/micromark/.github/blob/main/contributing.md
+[github-acorn-options]: https://github.com/acornjs/acorn/blob/96c721dbf89d0ccc3a8c7f39e69ef2a6a3c04dfa/acorn/dist/acorn.d.ts#L16
 
-[support]: https://github.com/micromark/.github/blob/main/support.md
+[github-expression-syntax]: https://github.com/micromark/micromark-extension-mdx-expression/blob/main/packages/micromark-extension-mdx-expression/readme.md#syntax
 
-[coc]: https://github.com/micromark/.github/blob/main/code-of-conduct.md
+[github-gist-esm]: https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c
 
-[esm]: https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c
+[github-mdast-util-from-markdown]: https://github.com/syntax-tree/mdast-util-from-markdown
 
-[typescript]: https://www.typescriptlang.org
+[github-mdast-util-mdx-jsx]: https://github.com/syntax-tree/mdast-util-mdx-jsx
 
-[development]: https://nodejs.org/api/packages.html#packages_resolving_user_conditions
+[github-micromark]: https://github.com/micromark/micromark
 
-[micromark]: https://github.com/micromark/micromark
+[github-micromark-expression]: https://github.com/micromark/micromark-extension-mdx-expression
 
-[micromark-extension]: https://github.com/micromark/micromark#syntaxextension
+[github-micromark-extension]: https://github.com/micromark/micromark#syntaxextension
 
-[micromark-extension-mdxjs]: https://github.com/micromark/micromark-extension-mdxjs
+[github-micromark-extension-mdxjs]: https://github.com/micromark/micromark-extension-mdxjs
 
-[micromark-extension-mdx-expression]: https://github.com/micromark/micromark-extension-mdx-expression
+[health-coc]: https://github.com/micromark/.github/blob/main/code-of-conduct.md
 
-[expression-syntax]: https://github.com/micromark/micromark-extension-mdx-expression/blob/main/packages/micromark-extension-mdx-expression/readme.md#syntax
+[health-contributing]: https://github.com/micromark/.github/blob/main/contributing.md
 
-[mdast-util-mdx-jsx]: https://github.com/syntax-tree/mdast-util-mdx-jsx
-
-[mdast-util-from-markdown]: https://github.com/syntax-tree/mdast-util-from-markdown
-
-[remark-mdx]: https://mdxjs.com/packages/remark-mdx/
+[health-support]: https://github.com/micromark/.github/blob/main/support.md
 
 [mdxjs]: https://mdxjs.com
 
 [mdxjs-interleaving]: https://mdxjs.com/docs/what-is-mdx/#interleaving
 
-[acorn]: https://github.com/acornjs/acorn
+[mdxjs-remark-mdx]: https://mdxjs.com/packages/remark-mdx/
 
-[acorn-options]: https://github.com/acornjs/acorn/blob/96c721dbf89d0ccc3a8c7f39e69ef2a6a3c04dfa/acorn/dist/acorn.d.ts#L16
+[nodejs-api-conditions]: https://nodejs.org/api/packages.html#packages_resolving_user_conditions
 
-[api-mdx-jsx]: #mdxjsxoptions
+[npmjs-install]: https://docs.npmjs.com/cli/install
 
-[api-options]: #options
+[typescript]: https://www.typescriptlang.org
+
+[wooorm]: https://wooorm.com
