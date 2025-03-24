@@ -36,11 +36,12 @@
 This package contains an extension that adds support for the JSX syntax enabled
 by [MDX][mdxjs] to [`micromark`][github-micromark].
 These extensions are used inside MDX.
-It mostly matches how JSX works in most places that support it (TypeScript,
-Babel, esbuild, SWC, etc).
+It mostly matches how JSX works in most places that support it
+(TypeScript, Babel, esbuild, SWC, etc).
 
 This package can be made aware or unaware of JavaScript syntax.
-When unaware, expressions could include Rust or variables or whatnot.
+When unaware,
+expressions could include Rust or variables or whatnot.
 
 ## When to use this
 
@@ -48,22 +49,24 @@ This project is useful when you want to support JSX in markdown.
 
 You can use this extension when you are working with
 [`micromark`][github-micromark].
-To support all MDX features, use
-[`micromark-extension-mdxjs`][github-micromark-extension-mdxjs] instead.
+To support all MDX features,
+use [`micromark-extension-mdxjs`][github-micromark-extension-mdxjs] instead.
 
-When you need a syntax tree, combine this package with
-[`mdast-util-mdx-jsx`][github-mdast-util-mdx-jsx].
+When you need a syntax tree,
+combine this package with [`mdast-util-mdx-jsx`][github-mdast-util-mdx-jsx].
 
 All these packages are used in [`remark-mdx`][mdxjs-remark-mdx],
 which focusses on making it easier to transform content by abstracting these
 internals away.
 
-When you are using [`mdx-js/mdx`][mdxjs], all of this is already included.
+When you are using [`mdx-js/mdx`][mdxjs],
+all of this is already included.
 
 ## Install
 
 This package is [ESM only][github-gist-esm].
-In Node.js (version 16+), install with [npm][npmjs-install]:
+In Node.js (version 16+),
+install with [npm][npmjs-install]:
 
 ```sh
 npm install micromark-extension-mdx-jsx
@@ -100,7 +103,8 @@ Yields:
 <p>a  f</p>
 ```
 
-…which is useless: go to a syntax tree with
+…which is useless:
+go to a syntax tree with
 [`mdast-util-from-markdown`][github-mdast-util-from-markdown] and
 [`mdast-util-mdx-jsx`][github-mdast-util-mdx-jsx] instead.
 
@@ -111,7 +115,8 @@ There is no default export.
 
 The export map supports the [`development` condition][nodejs-api-conditions].
 Run `node --conditions development module.js` to get instrumented dev code.
-Without this condition, production code is loaded.
+Without this condition,
+production code is loaded.
 
 ### `mdxJsx(options?)`
 
@@ -119,7 +124,8 @@ Create an extension for `micromark` to enable MDX JSX syntax.
 
 ###### Parameters
 
-* `options` ([`Options`][api-options], optional)
+* `options`
+  ([`Options`][api-options], optional)
   — configuration
 
 ###### Returns
@@ -133,22 +139,27 @@ Configuration (TypeScript type).
 
 ###### Fields
 
-* `acorn` ([`Acorn`][github-acorn], optional)
+* `acorn`
+  ([`Acorn`][github-acorn], optional)
   — acorn parser to use
-* `acornOptions` ([`AcornOptions`][github-acorn-options], default:
+* `acornOptions`
+  ([`AcornOptions`][github-acorn-options],
+  default:
   `{ecmaVersion: 2024, locations: true, sourceType: 'module'}`)
-  — configuration for acorn; all fields except `locations` can be set
-* `addResult` (`boolean`, default: `false`)
+  — configuration for acorn;
+  all fields except `locations` can be set
+* `addResult`
+  (`boolean`, default: `false`)
   — whether to add `estree` fields to tokens with results from acorn
 
 ## Authoring
 
-When authoring markdown with JSX, keep in mind that MDX is a whitespace
-sensitive and line-based language, while JavaScript is insensitive to
-whitespace.
+When authoring markdown with JSX,
+keep in mind that MDX is a whitespace sensitive and line-based language,
+while JavaScript is insensitive to whitespace.
 This affects how markdown and JSX interleave with eachother in MDX.
-For more info on how it works, see [§ Interleaving][mdxjs-interleaving] on the
-MDX site.
+For more info on how it works,
+see [§ Interleaving][mdxjs-interleaving] on the MDX site.
 
 ###### Comments inside tags
 
@@ -195,12 +206,15 @@ Correct:
 ###### Greater than (`>`) and right curly brace (`}`)
 
 JSX does not allow U+003E GREATER THAN (`>`) or U+007D RIGHT CURLY BRACE
-(`}`) literally in text, they need to be encoded as character references
+(`}`) literally in text,
+they need to be encoded as character references
 (or expressions).
 There is no good reason for this (some JSX parsers agree with us and don’t
 crash either).
-Therefore, in MDX, U+003E GREATER THAN (`>`) and U+007D RIGHT CURLY BRACE
-(`}`) are fine literally and don’t need to be encoded.
+Therefore,
+in MDX,
+U+003E GREATER THAN (`>`) and U+007D RIGHT CURLY BRACE (`}`) are fine literally
+and don’t need to be encoded.
 
 ## Syntax
 
@@ -267,36 +281,43 @@ JSX forms with the following BNF:
 
 <!--grammar end-->
 
-As the flow construct occurs in flow, like all flow constructs, it must be
-followed by an eol (line ending) or eof (end of file).
+As the flow construct occurs in flow,
+like all flow constructs,
+it must be followed by an eol (line ending) or eof (end of file).
 
 The grammar for JSX in markdown is much stricter than that of HTML in
 markdown.
-The primary benefit of this is that tags are parsed into tokens, and thus
-can be processed.
-Another, arguable, benefit of this is that it comes with syntax errors: if
-an author types something that is nonsensical, an error is thrown with
-information about where it happened, what occurred, and what was expected
-instead.
+The primary benefit of this is that tags are parsed into tokens,
+and thus can be processed.
+Another,
+arguable,
+benefit of this is that it comes with syntax errors:
+if an author types something that is nonsensical,
+an error is thrown with information about where it happened,
+what occurred,
+and what was expected instead.
 
 This extension supports expressions both aware and unaware to JavaScript
 (respectively gnostic and agnostic).
-Depending on whether acorn is passed, either valid JavaScript must be used in
-expressions, or arbitrary text (such as Rust code or so) can be used.
+Depending on whether acorn is passed,
+either valid JavaScript must be used in expressions,
+or arbitrary text (such as Rust code or so) can be used.
 
 More on this can be found in
 [§ Syntax of `micromark-extension-mdx-expression`][github-expression-syntax].
 
 ## Errors
 
-In aware (gnostic) mode, expressions are parsed with
+In aware (gnostic) mode,
+expressions are parsed with
 [`micromark-extension-mdx-expression`][github-micromark-expression],
 which throws some more errors.
 
 ### Unexpected end of file $at, expected $expect
 
 This error occurs for many different reasons if something was opened but not
-closed (source: `micromark-extension-mdx-jsx`, rule id: `unexpected-eof`).
+closed
+(source: `micromark-extension-mdx-jsx`, rule id: `unexpected-eof`).
 
 Some examples are:
 
@@ -426,10 +447,11 @@ It exports the additional type [`Options`][api-options].
 Projects maintained by the unified collective are compatible with maintained
 versions of Node.js.
 
-When we cut a new major release, we drop support for unmaintained versions of
-Node.
+When we cut a new major release,
+we drop support for unmaintained versions of Node.
 This means we try to keep the current release line,
-`micromark-extension-mdx-jsx@^2`, compatible with Node.js 16.
+`micromark-extension-mdx-jsx@2`,
+compatible with Node.js 16.
 
 This package works with `micromark` version `3` and later.
 
@@ -453,8 +475,9 @@ to get started.
 See [`support.md`][health-support] for ways to get help.
 
 This project has a [code of conduct][health-coc].
-By interacting with this repository, organization, or community you agree to
-abide by its terms.
+By interacting with this repository,
+organization,
+or community you agree to abide by its terms.
 
 ## License
 
