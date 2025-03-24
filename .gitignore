@@ -1,9 +1,10 @@
-coverage/
-node_modules/
-/lib/
-/index.js
 *.d.ts
 *.log
+*.tsbuildinfo
 .DS_Store
+/index.js
+/lib/
+coverage/
+node_modules/
 yarn.lock
 !dev/index.d.ts
